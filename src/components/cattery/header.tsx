@@ -4,8 +4,11 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
-import { PawPrint, Menu, Phone } from "lucide-react";
+import { PawPrint, Menu, Phone, Heart } from "lucide-react";
 import { useBooking } from "./booking-context";
+import { useFavorites } from "@/hooks/use-favorites";
+import { ThemeToggle } from "./theme-toggle";
+import { FavoritesPanel } from "./favorites-panel";
 
 const NAV_LINKS = [
   { href: "#about", label: "О питомнике" },
@@ -19,7 +22,9 @@ const NAV_LINKS = [
 export function Header() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [favOpen, setFavOpen] = useState(false);
   const { openWaitingList } = useBooking();
+  const { count, hydrated } = useFavorites();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 12);
@@ -75,6 +80,21 @@ export function Header() {
               <Phone className="h-4 w-4" />
               +7 495 123-45-67
             </a>
+            {/* Favorites button */}
+            <button
+              type="button"
+              onClick={() => setFavOpen(true)}
+              aria-label="Избранные котята"
+              className="relative inline-flex h-9 w-9 items-center justify-center rounded-full border border-border bg-background/60 text-foreground transition-colors hover:bg-muted hover:border-primary/40"
+            >
+              <Heart className="h-4 w-4" />
+              {hydrated && count > 0 && (
+                <span className="absolute -top-1 -right-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-accent px-1 text-[10px] font-semibold text-accent-foreground">
+                  {count}
+                </span>
+              )}
+            </button>
+            <ThemeToggle />
             <Button
               onClick={openWaitingList}
               variant="outline"
@@ -93,7 +113,22 @@ export function Header() {
           </div>
 
           {/* Mobile menu */}
-          <div className="lg:hidden">
+          <div className="lg:hidden flex items-center gap-1.5">
+            {/* Favorites (mobile) */}
+            <button
+              type="button"
+              onClick={() => setFavOpen(true)}
+              aria-label="Избранные котята"
+              className="relative inline-flex h-9 w-9 items-center justify-center rounded-full border border-border bg-background/60 text-foreground transition-colors hover:bg-muted"
+            >
+              <Heart className="h-4 w-4" />
+              {hydrated && count > 0 && (
+                <span className="absolute -top-1 -right-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-accent px-1 text-[10px] font-semibold text-accent-foreground">
+                  {count}
+                </span>
+              )}
+            </button>
+            <ThemeToggle />
             <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
               <SheetTrigger asChild>
                 <Button variant="ghost" size="icon" aria-label="Меню">
@@ -161,6 +196,7 @@ export function Header() {
           </div>
         </div>
       </div>
+      <FavoritesPanel open={favOpen} onOpenChange={setFavOpen} />
     </header>
   );
 }

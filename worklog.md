@@ -70,3 +70,35 @@ Unresolved issues / next steps (приоритеты для следующего
 - (low) Lazy-loading изображений с blur-placeholder (next/image placeholder=blur).
 - (low) Open Graph image + favicon, сгенерированные под бренд «Тихий Дом».
 - (low) Sitemap.xml + robots.txt для SEO.
+
+---
+Task ID: cron-round-3
+Agent: Z.ai Code (cron webDevReview — round 3)
+Task: QA через agent-browser, исправление багов и добавление новых фич/стилей для питомника «Тихий Дом».
+
+Work Log:
+- Прочитал worklog.md, оценил статус: проект стабилен после раунда 2, lint чист, dev-сервер работает, все API → 200.
+- QA через agent-browser (1440×900): проверил все секции, диалоги, квиз — 0 ошибок и предупреждений в консоли. Все заголовки на месте.
+- **Тёмная тема**: создал `ThemeProvider` (next-themes) + `ThemeToggle` (кнопка с анимированной сменой Sun/Moon). Обернул приложение в ThemeProvider в layout.tsx, theme="class", defaultTheme="light", enableSystem. Тёмная палитра уже была в globals.css (зелёно-серый фон, песочный/терракотовый акценты). Кнопка добавлена в шапку (десктоп + мобильное меню).
+- **Избранное (wishlist)**: создал хук `useFavorites` (localStorage + кастомное событие для same-tab синхронизации) с lazy useState-инициализатором (избежал setState-in-effect). Создал `FavoritesPanel` — slide-over с мини-карточками избранных котят, кнопками «Забронировать» и «Убрать», счётчиком, empty-state. Кнопка-сердечко добавлена на каждую карточку котёнка (с toast-уведомлением). Бейдж со счётчиком в шапке (десктоп + мобильный).
+- **Сравнение котят**: создал `CompareProvider` (контекст, макс. 3 котёнка) + `CompareBar` (плавающая панель внизу с миниатюрами выбранных, кнопкой «Сравнить» и очисткой). Создал comparison-диалог — горизонтальная таблица (sticky первая колонка с названиями параметров: Фото, Имя, Статус, Окрас, Пол, Характер, Возраст, Привит, Цена + строка с CTA). Кнопка-compare добавлена на каждую карточку котёнка с toast и ограничением «максимум 3».
+- **Галерея котёнка**: рефакторил `KittenDialog` — вынес контент в `KittenDialogContent` с `key={kitten.id}` (React-idiomatic сброс состояния через key вместо setState-in-effect). Галерея: основное фото котёнка + фото родителей (как «семейные» ракурсы) с миниатюрами внизу, переключение по клику.
+- **SEO-бренд**: сгенерировал OG-изображение (1344×768, тёплый мейн-кун с negative space) и favicon (SVG paw print + house в фирменных цветах). Создал `manifest.json` (theme_color #4A6B57, background #FBF8F3). Добавил `metadataBase`, icons, openGraph.images, twitter.images в layout.tsx.
+- **SEO-роуты**: создал `src/app/sitemap.ts` (8 секций с приоритетами) и `src/app/robots.ts` (allow all + sitemap URL).
+- **useIsMounted**: создал хук через `useSyncExternalStore` (server snapshot false, client snapshot true) — самый чистый способ определить клиентский рендер без setState-in-effect и без hydration mismatch.
+- ESLint: поймал 5 ошибок `set-state-in-effect` (theme-toggle, use-favorites, kittens-catalog gallery reset, favorites-panel, compare-bar) → исправил: useSyncExternalStore для mounted, lazy useState-инициализаторы для localStorage, key-based remount для галереи, microtask для setLoading, derived visible для compare-bar. Lint теперь чист (0 ошибок).
+- Финальная QA через agent-browser: всё работает end-to-end — избранное добавляется/показывается в slide-over с бейджем в шапке, сравнение 2 котят открывает таблицу с фото/именами/характером/ценой, галерея котёнка переключает фото с родителями, тёмная тема переключается (0 ошибок в консоли в обоих режимах), мобильная адаптация (390×844) сохранена для всех новых фич.
+
+Stage Summary:
+- Добавлено 5 новых компонентов: ThemeToggle, FavoritesPanel, CompareProvider+CompareBar+CompareDialog, KittenGallery (внутри KittenDialog), ThemeProvider + хуки useFavorites/useIsMounted.
+- Ключевые новые фичи: ① тёмная тема (toggle в шапке), ② избранное с localStorage и slide-over, ③ сравнение котят (до 3) с таблицей, ④ галерея фото котёнка+родители, ⑤ SEO-бренд (OG image, favicon, manifest, sitemap, robots).
+- Техническое качество: все паттерны React 19-совместимые (без setState-in-effect, useSyncExternalStore для mounted, key-based reset), lint чист, 0 консольных ошибок.
+
+Unresolved issues / next steps (приоритеты для следующего раунда):
+- (medium) 30-секундные видео-превью поведения котят (video-understanding skill или <video> с placeholder).
+- (medium) Real-time обновление наличия котят через WebSocket (mini-service socket.io, порт 3003).
+- (low) Lazy-loading изображений с blur-placeholder (next/image placeholder=blur — нужны сгенерированные blur data URLs).
+- (low) Страница статьи блога по slug (отдельный маршрут /blog/[slug]) вместо диалога — лучше для SEO.
+- (low) Анимация появления карточек котят при фильтрации (staggered fade).
+- (low) Cookie-баннер (GDPR/152-ФЗ) — пока не реализован.
+- (low) Интеграция с реальным мессенджером (WhatsApp/Telegram) через API для автоматизации ответов.

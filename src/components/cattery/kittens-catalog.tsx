@@ -29,6 +29,7 @@ import {
   Filter,
   X,
   Dna,
+  GitCompare,
 } from "lucide-react";
 import type { Kitten, Personality } from "@/lib/types/cattery";
 import {
@@ -39,6 +40,9 @@ import {
 } from "@/lib/types/cattery";
 import { useBooking } from "./booking-context";
 import { SpotlightCard } from "./spotlight-card";
+import { useFavorites } from "@/hooks/use-favorites";
+import { useCompare } from "./compare-context";
+import { toast } from "sonner";
 
 const PERSONALITY_ICON: Record<Personality, typeof Moon> = {
   calm: Moon,
@@ -375,6 +379,33 @@ function KittenCard({
   const GenderIcon = gender.icon;
   const isAvailable = kitten.status === "available";
   const isExpected = kitten.status === "expected";
+  const { isFavorite, toggle: toggleFav } = useFavorites();
+  const { isComparing, toggle: toggleCompare, canAdd, max } = useCompare();
+
+  const fav = isFavorite(kitten.id);
+  const comparing = isComparing(kitten.id);
+
+  const handleFav = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    toggleFav(kitten.id);
+    toast(fav ? "Убрано из избранного" : "Добавлено в избранное", {
+      description: fav ? undefined : `${kitten.name} теперь в вашем списке.`,
+    });
+  };
+
+  const handleCompare = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!comparing && !canAdd) {
+      toast.warning(`Можно сравнить максимум ${max} котят`, {
+        description: "Уберите одного, чтобы добавить другого.",
+      });
+      return;
+    }
+    toggleCompare(kitten.id);
+    toast(comparing ? "Убрано из сравнения" : "Добавлено к сравнению", {
+      description: comparing ? undefined : `${kitten.name} в списке для сравнения.`,
+    });
+  };
 
   return (
     <SpotlightCard className="rounded-2xl ring-1 ring-border h-full">
@@ -392,14 +423,37 @@ function KittenCard({
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
 
-        {/* Status badge */}
-        <span
-          className={`absolute top-3 right-3 px-2.5 py-1 rounded-full text-xs font-medium shadow-sm ${STATUS_STYLES[kitten.status]}`}
-        >
-          {kitten.statusLabel}
-        </span>
+        {/* Action buttons (top-right): favorite + compare */}
+        <div className="absolute top-2.5 right-2.5 flex flex-col gap-1.5 z-10">
+          <button
+            type="button"
+            onClick={handleFav}
+            aria-label={fav ? "Убрать из избранного" : "Добавить в избранное"}
+            aria-pressed={fav}
+            className="flex h-8 w-8 items-center justify-center rounded-full bg-background/90 backdrop-blur-sm border border-border text-foreground hover:bg-background hover:scale-110 transition-all shadow-sm"
+          >
+            <Heart
+              className={`h-4 w-4 transition-all ${
+                fav ? "fill-accent text-accent scale-110" : "text-foreground"
+              }`}
+            />
+          </button>
+          <button
+            type="button"
+            onClick={handleCompare}
+            aria-label={comparing ? "Убрать из сравнения" : "Добавить к сравнению"}
+            aria-pressed={comparing}
+            className={`flex h-8 w-8 items-center justify-center rounded-full backdrop-blur-sm border transition-all shadow-sm ${
+              comparing
+                ? "bg-secondary text-secondary-foreground border-secondary scale-110"
+                : "bg-background/90 border-border text-foreground hover:bg-background hover:scale-110"
+            }`}
+          >
+            <GitCompare className="h-4 w-4" />
+          </button>
+        </div>
 
-        {/* Personality badge */}
+        {/* Personality badge (top-left) */}
         <span className="absolute top-3 left-3 inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-background/90 text-foreground backdrop-blur-sm border border-border">
           <PersonalityIcon className="h-3 w-3 text-accent" />
           {kitten.personalityLabel}
@@ -486,14 +540,50 @@ function KittenDialog({
   onClose: () => void;
   onBook: (k: Kitten) => void;
 }) {
-  if (!kitten) return null;
+  return (
+    <Dialog open={!!kitten} onOpenChange={(o) => !o && onClose()}>
+      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto custom-scroll bg-background p-0">
+        {kitten && (
+          <KittenDialogContent
+            // Remount on kitten change → gallery state resets to 0 naturally
+            key={kitten.id}
+            kitten={kitten}
+            onClose={onClose}
+            onBook={onBook}
+          />
+        )}
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function KittenDialogContent({
+  kitten,
+  onBook,
+}: {
+  kitten: Kitten;
+  onClose: () => void;
+  onBook: (k: Kitten) => void;
+}) {
+  const [activeImg, setActiveImg] = useState(0);
+
+  // Build gallery: main kitten image + parent images (as "family" angles)
+  const gallery: { src: string; alt: string }[] = [
+    { src: kitten.imageUrl, alt: kitten.name },
+    ...(kitten.litter?.father
+      ? [{ src: kitten.litter.father.imageUrl, alt: `Отец — ${kitten.litter.father.name}` }]
+      : []),
+    ...(kitten.litter?.mother
+      ? [{ src: kitten.litter.mother.imageUrl, alt: `Мать — ${kitten.litter.mother.name}` }]
+      : []),
+  ];
+
   const PersonalityIcon = PERSONALITY_ICON[kitten.personality];
   const gender = GENDER_LABEL[kitten.gender];
   const GenderIcon = gender.icon;
 
   return (
-    <Dialog open={!!kitten} onOpenChange={(o) => !o && onClose()}>
-      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto custom-scroll bg-background p-0">
+    <>
         <DialogHeader className="sr-only">
           <DialogTitle>{kitten.name} — карточка котёнка</DialogTitle>
           <DialogDescription>
@@ -502,19 +592,48 @@ function KittenDialog({
         </DialogHeader>
 
         <div className="grid sm:grid-cols-2">
-          <div className="relative aspect-square sm:aspect-auto sm:min-h-[500px]">
-            <Image
-              src={kitten.imageUrl}
-              alt={kitten.name}
-              fill
-              sizes="(max-width: 640px) 100vw, 50vw"
-              className="object-cover"
-            />
-            <span
-              className={`absolute top-3 right-3 px-3 py-1 rounded-full text-xs font-medium ${STATUS_STYLES[kitten.status]}`}
-            >
-              {kitten.statusLabel}
-            </span>
+          <div className="relative flex flex-col">
+            <div className="relative aspect-square sm:aspect-auto sm:min-h-[420px]">
+              <Image
+                src={gallery[activeImg]?.src ?? kitten.imageUrl}
+                alt={gallery[activeImg]?.alt ?? kitten.name}
+                fill
+                sizes="(max-width: 640px) 100vw, 50vw"
+                className="object-cover transition-opacity duration-300"
+                key={activeImg}
+              />
+              <span
+                className={`absolute top-3 right-3 px-3 py-1 rounded-full text-xs font-medium ${STATUS_STYLES[kitten.status]}`}
+              >
+                {kitten.statusLabel}
+              </span>
+            </div>
+            {/* Thumbnails */}
+            {gallery.length > 1 && (
+              <div className="flex gap-2 p-3 overflow-x-auto custom-scroll">
+                {gallery.map((img, i) => (
+                  <button
+                    key={i}
+                    type="button"
+                    onClick={() => setActiveImg(i)}
+                    aria-label={`Фото ${i + 1}: ${img.alt}`}
+                    className={`relative h-14 w-14 shrink-0 rounded-lg overflow-hidden ring-2 transition-all ${
+                      activeImg === i
+                        ? "ring-primary scale-105"
+                        : "ring-border opacity-70 hover:opacity-100"
+                    }`}
+                  >
+                    <Image
+                      src={img.src}
+                      alt={img.alt}
+                      fill
+                      sizes="56px"
+                      className="object-cover"
+                    />
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
 
           <div className="p-6 sm:p-8 flex flex-col gap-4 overflow-y-auto custom-scroll max-h-[60vh] sm:max-h-[90vh]">
@@ -598,8 +717,7 @@ function KittenDialog({
             </Button>
           </div>
         </div>
-      </DialogContent>
-    </Dialog>
+    </>
   );
 }
 

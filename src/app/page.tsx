@@ -1,6 +1,7 @@
 "use client";
 
 import { BookingProvider } from "@/components/cattery/booking-context";
+import { CompareProvider } from "@/components/cattery/compare-context";
 import { Header } from "@/components/cattery/header";
 import { Hero } from "@/components/cattery/hero";
 import { TrustMarquee } from "@/components/cattery/trust-marquee";
@@ -17,30 +18,34 @@ import { FinalCTA } from "@/components/cattery/final-cta";
 import { Footer } from "@/components/cattery/footer";
 import { BookingDialog } from "@/components/cattery/booking-dialog";
 import { BackToTop } from "@/components/cattery/back-to-top";
+import { CompareBar } from "@/components/cattery/compare-bar";
 
 export default function Home() {
   return (
     <BookingProvider>
-      <div className="flex min-h-screen flex-col bg-background">
-        <Header />
-        <main className="flex-1">
-          <Hero />
-          <TrustMarquee />
-          <About />
-          <Producers />
-          <ShowChampions />
-          <PersonalityQuiz />
-          <KittensCatalog />
-          <BookingProcess />
-          <Reviews />
-          <Blog />
-          <FAQ />
-          <FinalCTA />
-        </main>
-        <Footer />
-        <BookingDialog />
-        <BackToTop />
-      </div>
+      <CompareProvider>
+        <div className="flex min-h-screen flex-col bg-background">
+          <Header />
+          <main className="flex-1">
+            <Hero />
+            <TrustMarquee />
+            <About />
+            <Producers />
+            <ShowChampions />
+            <PersonalityQuiz />
+            <KittensCatalog />
+            <BookingProcess />
+            <Reviews />
+            <Blog />
+            <FAQ />
+            <FinalCTA />
+          </main>
+          <Footer />
+          <BookingDialog />
+          <BackToTop />
+          <CompareBar />
+        </div>
+      </CompareProvider>
     </BookingProvider>
   );
 }
