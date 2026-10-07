@@ -38,6 +38,7 @@ import {
   PERSONALITY_DESCRIPTIONS,
 } from "@/lib/types/cattery";
 import { useBooking } from "./booking-context";
+import { SpotlightCard } from "./spotlight-card";
 
 const PERSONALITY_ICON: Record<Personality, typeof Moon> = {
   calm: Moon,
@@ -98,6 +99,20 @@ export function KittensCatalog() {
       Object.values(filters).filter((v) => v !== "all").length
     );
   }, [filters]);
+
+  // Listen for filter requests from the personality quiz
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const detail = (e as CustomEvent).detail as {
+        personality?: Personality;
+      };
+      if (detail?.personality) {
+        setFilters((f) => ({ ...f, personality: detail.personality! }));
+      }
+    };
+    window.addEventListener("cattery:setFilter", handler);
+    return () => window.removeEventListener("cattery:setFilter", handler);
+  }, []);
 
   const updateFilter = (key: keyof typeof filters, value: string) => {
     setFilters((f) => ({ ...f, [key]: value }));
@@ -362,7 +377,8 @@ function KittenCard({
   const isExpected = kitten.status === "expected";
 
   return (
-    <Card className="group overflow-hidden border-border bg-card hover:shadow-lg transition-all duration-300 flex flex-col">
+    <SpotlightCard className="rounded-2xl ring-1 ring-border h-full">
+    <Card className="group overflow-hidden border-0 bg-card hover:shadow-lg transition-all duration-300 flex flex-col h-full">
       <div
         className="relative aspect-[4/3] overflow-hidden cursor-pointer"
         onClick={onSelect}
@@ -457,6 +473,7 @@ function KittenCard({
         </Button>
       </CardFooter>
     </Card>
+    </SpotlightCard>
   );
 }
 

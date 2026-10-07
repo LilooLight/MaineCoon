@@ -211,3 +211,36 @@ html {
   scroll-behavior: smooth;
   scroll-padding-top: 5rem;
 }
+
+/* Blog/article prose styling */
+.prose-content p {
+  margin-bottom: 1.1rem;
+}
+.prose-content p:last-child {
+  margin-bottom: 0;
+}
+.prose-content p:first-of-type {
+  font-size: 1.05rem;
+}
+
+/* Scroll progress + floating btn — ensure they sit above content */
+.fixed-top-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 60;
+  height: 3px;
+  pointer-events: none;
+}
+
+/* Reveal animation fallback (in case transition fails) */
+@media (prefers-reduced-motion: reduce) {
+  .blur-fade,
+  .animate-marquee {
+    animation: none !important;
+  }
+  html {
+    scroll-behavior: auto;
+  }
+}

@@ -3,15 +3,20 @@
 import { BookingProvider } from "@/components/cattery/booking-context";
 import { Header } from "@/components/cattery/header";
 import { Hero } from "@/components/cattery/hero";
+import { TrustMarquee } from "@/components/cattery/trust-marquee";
 import { About } from "@/components/cattery/about";
 import { Producers } from "@/components/cattery/producers";
+import { ShowChampions } from "@/components/cattery/show-champions";
 import { KittensCatalog } from "@/components/cattery/kittens-catalog";
+import { PersonalityQuiz } from "@/components/cattery/personality-quiz";
+import { BookingProcess } from "@/components/cattery/booking-process";
 import { Reviews } from "@/components/cattery/reviews";
 import { Blog } from "@/components/cattery/blog";
 import { FAQ } from "@/components/cattery/faq";
 import { FinalCTA } from "@/components/cattery/final-cta";
 import { Footer } from "@/components/cattery/footer";
 import { BookingDialog } from "@/components/cattery/booking-dialog";
+import { BackToTop } from "@/components/cattery/back-to-top";
 
 export default function Home() {
   return (
@@ -20,9 +25,13 @@ export default function Home() {
         <Header />
         <main className="flex-1">
           <Hero />
+          <TrustMarquee />
           <About />
           <Producers />
+          <ShowChampions />
+          <PersonalityQuiz />
           <KittensCatalog />
+          <BookingProcess />
           <Reviews />
           <Blog />
           <FAQ />
@@ -30,6 +39,7 @@ export default function Home() {
         </main>
         <Footer />
         <BookingDialog />
+        <BackToTop />
       </div>
     </BookingProvider>
   );
