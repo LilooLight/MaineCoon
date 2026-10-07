@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>Чек-лист ухода за мейн-куном — Питомник «Тихий Дом»</title>
+<style>
+  @page {
+    size: A4;
+    margin: 14mm 16mm 18mm 16mm;
+  }
+  :root {
+    --primary: #4A6B57;
+    --secondary: #C9A77C;
+    --accent: #B86B4B;
+    --background: #FBF8F3;
+    --foreground: #2E2E2E;
+    --muted: #F2EDE4;
+    --muted-foreground: #6B5E4F;
+    --border: #E8E0D3;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: var(--background);
+    color: var(--foreground);
+    font-family: 'Manrope', 'Helvetica Neue', Arial, sans-serif;
+    font-size: 11pt;
+    line-height: 1.55;
+  }
+  h1, h2, h3, h4 {
+    font-family: 'Cormorant Garamond', 'Georgia', serif;
+    color: var(--foreground);
+    margin: 0;
+  }
+  h1 { font-size: 26pt; font-weight: 600; line-height: 1.1; }
+  h2 {
+    font-size: 15pt;
+    font-weight: 600;
+    color: var(--primary);
+    margin-top: 1.6em;
+    padding-bottom: 0.3em;
+    border-bottom: 1.5pt solid var(--secondary);
+  }
+  h3 { font-size: 12pt; font-weight: 600; margin-top: 0.8em; }
+  p { margin: 0.5em 0; }
+  .container { max-width: 100%; }
+
+  /* Header */
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding-bottom: 10pt;
+    border-bottom: 2pt solid var(--primary);
+    margin-bottom: 16pt;
+  }
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 8pt;
+  }
+  .brand-mark {
+    width: 26pt;
+    height: 26pt;
+    border-radius: 50%;
+    background: var(--primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #FBF8F3;
+    font-size: 13pt;
+  }
+  .brand-text { line-height: 1.1; }
+  .brand-name {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: 16pt;
+    font-weight: 600;
+    color: var(--foreground);
+  }
+  .brand-sub {
+    font-size: 7.5pt;
+    text-transform: uppercase;
+    letter-spacing: 1pt;
+    color: var(--muted-foreground);
+  }
+  .header-meta {
+    text-align: right;
+    font-size: 8pt;
+    color: var(--muted-foreground);
+    line-height: 1.4;
+  }
+
+  /* Title block */
+  .title-block { margin-bottom: 14pt; }
+  .badge {
+    display: inline-block;
+    padding: 3pt 10pt;
+    background: rgba(184, 107, 75, 0.12);
+    color: var(--accent);
+    font-size: 8pt;
+    text-transform: uppercase;
+    letter-spacing: 1.5pt;
+    border-radius: 20pt;
+    border: 1pt solid rgba(184, 107, 75, 0.3);
+    margin-bottom: 8pt;
+  }
+  .lead {
+    font-size: 11.5pt;
+    color: var(--muted-foreground);
+    margin-top: 6pt;
+    line-height: 1.5;
+  }
+
+  /* Checklist items */
+  .checklist { list-style: none; padding: 0; margin: 8pt 0 4pt; }
+  .checklist li {
+    display: flex;
+    align-items: flex-start;
+    gap: 8pt;
+    padding: 5pt 0;
+    page-break-inside: avoid;
+  }
+  .check-box {
+    width: 11pt;
+    height: 11pt;
+    border: 1.2pt solid var(--primary);
+    border-radius: 2.5pt;
+    flex-shrink: 0;
+    margin-top: 2pt;
+  }
+  .check-text { flex: 1; font-size: 10.5pt; line-height: 1.5; }
+  .check-text strong { color: var(--foreground); }
+  .check-text .hint {
+    display: block;
+    color: var(--muted-foreground);
+    font-size: 9pt;
+    margin-top: 2pt;
+  }
+
+  /* Info callout */
+  .callout {
+    background: rgba(74, 107, 87, 0.06);
+    border-left: 3pt solid var(--primary);
+    padding: 9pt 12pt;
+    border-radius: 0 6pt 6pt 0;
+    margin: 12pt 0;
+    page-break-inside: avoid;
+  }
+  .callout p { margin: 0.3em 0; font-size: 10pt; }
+  .callout strong { color: var(--primary); }
+
+  /* Two-column for compact sections */
+  .two-col { display: flex; gap: 14pt; }
+  .two-col > div { flex: 1; }
+
+  /* Schedule table */
+  table.schedule {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 8pt 0;
+    font-size: 9.5pt;
+  }
+  table.schedule th {
+    background: var(--primary);
+    color: #FBF8F3;
+    padding: 5pt 8pt;
+    text-align: left;
+    font-weight: 600;
+    font-size: 9pt;
+  }
+  table.schedule td {
+    padding: 5pt 8pt;
+    border-bottom: 0.6pt solid var(--border);
+    vertical-align: top;
+  }
+  table.schedule tr:nth-child(even) td { background: rgba(242, 237, 228, 0.4); }
+
+  /* Footer */
+  .footer {
+    margin-top: 20pt;
+    padding-top: 10pt;
+    border-top: 1pt solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 8.5pt;
+    color: var(--muted-foreground);
+  }
+  .footer-contact { text-align: right; }
+  .footer-contact a { color: var(--primary); text-decoration: none; }
+
+  .page-break { page-break-before: always; }
+</style>
+</head>
+<body>
+<div class="container">
+  <!-- Header -->
+  <div class="header">
+    <div class="brand">
+      <div class="brand-mark">🐾</div>
+      <div class="brand-text">
+        <div class="brand-name">Тихий Дом</div>
+        <div class="brand-sub">питомник мейн-кунов</div>
+      </div>
+    </div>
+    <div class="header-meta">
+      Чек-лист для новых владельцев<br>
+      Питомник «Тихий Дом» · Москва<br>
+      +7 495 123-45-67
+    </div>
+  </div>
+
+  <!-- Title -->
+  <div class="title-block">
+    <div class="badge">Уход за мейн-куном · первый год</div>
+    <h1>Чек-лист заботливого хозяина</h1>
+    <p class="lead">
+      Этот чек-лист — то, что мы сами делаем со своими котами. Без маркетинга,
+      без «специальных кормов». Только проверенный опыт и честные советы.
+      Распечатайте, повесьте на холодильник — и отмечайте по мере выполнения.
+    </p>
+  </div>
+
+  <!-- Feeding -->
+  <h2>1. Кормление</h2>
+  <ul class="checklist">
+    <li><div class="check-box"></div><div class="check-text"><strong>Выбрать корм класса холистик</strong> для котят крупных пород.
+      <span class="hint">Ищите на упаковке класс «холистик» или «супер-премиум». Маркировка «для мейн-кунов» — маркетинг, важен класс.</span>
+    </div></li>
+    <li><div class="check-box"></div><div class="check-text"><strong>До 6 месяцев — 4 кормления в день</strong>, с 6 до 12 — 3, после года — 2.
+      <span class="hint">Строгое расписание помогает пищеварению и prevents ожирение.</span>
+    </div></li>
+    <li><div class="check-box"></div><div class="check-text"><strong>Обеспечить постоянный доступ к свежей воде.</strong>
+      <span class="hint">Мейн-куны любят проточную воду — фонтанчик снижает риск болезней почек.</span>
+    </div></li>
+    <li><div class="check-box"></div><div class="check-text"><strong>Не давать: лук, шоколад, молоко, кости птицы, сырое мясо сомнительного происхождения.</strong></div></li>
+  </ul>
+
+  <!-- Health -->
+  <h2>2. Ветеринар и прививки</h2>
+  <table class="schedule">
+    <thead>
+      <tr><th style="width:22%">Возраст</th><th>Что делаем</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>8–9 недель</td><td>Первая прививка (вы ставите у нас до переезда)</td></tr>
+      <tr><td>12 недель</td><td>Ревакцинация — у вашего ветеринара</td></tr>
+      <tr><td>16 недель</td><td>Чипирование + повторная прививка</td></tr>
+      <tr><td>7–9 месяцев</td><td>Кастрация / стерилизация (по договорённости)</td></tr>
+      <tr><td>Ежегодно</td><td>Прививка + осмотр + анализы крови</td></tr>
+    </tbody>
+  </table>
+  <ul class="checklist">
+    <li><div class="check-box"></div><div class="check-text"><strong>Выбрать «своего» ветеринара в первый месяц.</strong>
+      <span class="hint">Не ждите болезни — познакомьтесь заранее, сделайте осмотр.</span>
+    </div></li>
+    <li><div class="check-box"></div><div class="check-text"><strong>Раз в квартал — обработка от паразитов</strong> (даже если кот дома).</div></li>
+  </ul>
+
+  <!-- Grooming -->
+  <h2>3. Груминг и уход</h2>
+  <div class="two-col">
+    <div>
+      <ul class="checklist">
+        <li><div class="check-box"></div><div class="check-text"><strong>Расчёсывать раз в неделю</strong> металлической расчёской с длинными зубьями.</div></li>
+        <li><div class="check-box"></div><div class="check-text"><strong>Стричь когти раз в 2 недели</strong> — специальными когтерезками.</div></li>
+      </ul>
+    </div>
+    <div>
+      <ul class="checklist">
+        <li><div class="check-box"></div><div class="check-text"><strong>Купать раз в 2–3 месяца</strong>, только если испачкался.</div></li>
+        <li><div class="check-box"></div><div class="check-text"><strong>Проверять уши и зубы</strong> раз в неделю.</div></li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Environment -->
+  <h2>4. Среда и поведение</h2>
+  <ul class="checklist">
+    <li><div class="check-box"></div><div class="check-text"><strong>Поставить когтеточку высотой от 80 см</strong> — мейн-кунам важно тянуться.
+      <span class="hint">Лучше вертикальную, из натурального шпагата или картона.</span>
+    </div></li>
+    <li><div class="check-box"></div><div class="check-text"><strong>Выбрать большой лоток</strong> с комкующимся наполнителем без запаха.</div></li>
+    <li><div class="check-box"></div><div class="check-text"><strong>Оборудовать «своё место»</strong> — домик или полка на высоте ≥1 м.</div></li>
+    <li><div class="check-box"></div><div class="check-text"><strong>Ежедневные интерактивные игры 15–20 минут</strong> — перья, мячики, лазер (с осторожностью).</div></li>
+  </ul>
+
+  <div class="callout">
+    <p><strong>Главное:</strong> у вас есть заводчик. Не слушайте советы из интернета вслепую —
+    спрашивайте. Мы отвечаем и через месяц, и через пять лет. Это не «менеджер 24/7»,
+    а личная связь с тем, кто вырастил вашего котёнка.</p>
+  </div>
+
+  <!-- Footer -->
+  <div class="footer">
+    <div>© Питомник «Тихий Дом» · Чек-лист для новых владельцев</div>
+    <div class="footer-contact">
+      +7 495 123-45-67 · hello@tiliydom.ru<br>
+      WhatsApp / Telegram: @tiliydom
+    </div>
+  </div>
+</div>
+</body>
+</html>

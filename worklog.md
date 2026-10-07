@@ -170,3 +170,36 @@ Unresolved issues / next steps (приоритеты для следующего
 - (low) Аналитика просмотров статей (при согласии cookie).
 - (low) Care checklist PDF для новых владельцев (генерация через pdf skill).
 - (low) Интеграция с реальным мессенджером (WhatsApp/Telegram) через API.
+
+---
+Task ID: cron-round-6
+Agent: Z.ai Code (cron webDevReview — round 6)
+Task: QA через agent-browser, исправление багов и добавление новых фич/стилей для питомника «Тихий Дом».
+
+Work Log:
+- Прочитал worklog.md, оценил статус: проект стабилен после раунда 5, lint чист, dev-сервер работает.
+- Обнаружил: availability-service (WebSocket, порт 3003) упал — перезапустил.
+- QA через agent-browser (1440×900): все 11 секций рендерятся, 0 ошибок в консоли.
+- **Админ-аутентификация**: создал API `/api/admin/auth` (POST login с httpOnly cookie, GET check, DELETE logout). Создал страницу `/admin/login` (client component) с формой пароля, показом/скрытием, демо-паролем, авто-редиректом если уже авторизован. Переделал `/admin` в server component (`page.tsx`) с guard: читает cookie через `next/headers`, если нет — `redirect("/admin/login")`. Перенёс dashboard в `admin-dashboard.tsx`. Добавил кнопку «Выйти» в хедер админки. Демо-пароль: `tihiy-dom-2026` (env ADMIN_PASSWORD). Протестировано end-to-end: `/admin` → редирект на login → ввод пароля → редирект на dashboard → «Выйти» → обратно на login.
+- **Багфикс auth**: поймал `ReferenceError: maxAge is not defined` (использовал `maxAge` вместо `MAX_AGE` в cookies.set). Исправил. Проверил через curl — API возвращает `{"success":true}` с cookie.
+- **Секция «Приехать познакомиться» (VisitUs)**: сгенерировал тёплое фото интерьера дома. Создал компонент с: фото + плавающая карточка адреса (Москва, Юго-Западная, «15 мин от метро»), pulsing-badge «Принимаем гостей», 3 правила визита («Только по записи», «Это наш дом», «15 минут от метро»), CTA «Записаться на визит» + «Позвонить». Добавил ссылку «Визит» в навигацию.
+- **Care Checklist PDF**: через pdf skill создал HTML-чек-лист (фирменный стиль, 2 страницы, A4) с разделами: Кормление, Ветеринар и прививки (таблица-расписание по возрастам), Груминг, Среда и поведение, callout про поддержку заводчика. Сгенерировал PDF через `html2pdf-next.js --nopaged` (2 страницы, 66 KB, vector). Проверил через `pdf_qa.py` — 10 checks passed, 2 minor warnings. Добавил metadata (Title, Author, Subject). Скопировал PDF+HTML в `public/download/`. Создал компонент `CareChecklist` — секция с описанием, списком хайлайтов, кнопкой скачивания PDF и мок-превью листа PDF с layered paper effect. Добавил на страницу между VisitUs и Blog.
+- ESLint: поймал 1 ошибку JSX (`<br>` без закрывающего тега в care-checklist.tsx) → исправил на `<br />`. Багфикс auth API (`MAX_AGE`). Lint чист.
+- Финальная QA: lint чист, обе новые секции (VisitUs, CareChecklist) рендерятся, PDF скачивается (HTTP 200, 66 KB, application/pdf), админ-логин работает (login → dashboard → logout → login), мобильная адаптация (390×844) сохранена, 0 ошибок в консоли. Оба сервиса (3000 + 3003) запущены.
+
+Stage Summary:
+- Добавлено 4 новых компонента/страницы/файла: VisitUs, CareChecklist, AdminLoginPage + AdminAuth API + server guard на /admin.
+- 2 новых API-роута: `/api/admin/auth` (POST/GET/DELETE), + `/admin` теперь server-gated.
+- 1 новый PDF: care-checklist.pdf (2 страницы, фирменный стиль, для новых владельцев).
+- Ключевые новые фичи: ① админ-аутентификация с cookie-based паролем (защита /admin), ② секция «Приехать познакомиться» с локацией и правилами визита, ③ downloadable care checklist PDF (PDF skill), ④ кнопка «Выйти» в админке.
+- Сгенерировано 1 новое изображение (интерьер дома для визита).
+- Техническое качество: server-side cookie auth, httpOnly cookies, server component guard, lint чист, 0 runtime ошибок.
+
+Unresolved issues / next steps (приоритеты для следующего раунда):
+- (medium) 30-секундные видео-превью поведения котят (video-understanding skill или <video> с placeholder).
+- (low) Lazy-loading изображений с blur-placeholder (next/image placeholder=blur).
+- (low) Админ-панель: CRUD для котят/помётов/производителей (сейчас только заявки).
+- (low) Аналитика просмотров статей (при согласии cookie).
+- (low) Интеграция с реальным мессенджером (WhatsApp/Telegram) через API.
+- (low) Страница «О нас» с историей питомника (отдельный маршрут для SEO).
+- (low) availability-service стабильно падает между раундами — добавить auto-restart через process manager (pm2 или systemd).
