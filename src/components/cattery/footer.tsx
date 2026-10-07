@@ -19,7 +19,7 @@ const NAV_SECTIONS = [
       { href: "#blog", label: "Блог" },
       { href: "#faq", label: "Вопросы и ответы" },
       { href: "#kittens", label: "Бронирование" },
-      { href: "/about", label: "Генетические тесты" },
+      { href: "/contacts", label: "Контакты" },
     ],
   },
 ];

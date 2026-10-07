@@ -33,6 +33,7 @@ import {
   Clock,
   HeartHandshake,
 } from "lucide-react";
+import { AdminKittens } from "@/components/cattery/admin-kittens";
 
 interface Booking {
   id: string;
@@ -90,6 +91,7 @@ export default function AdminPage() {
   const [selected, setSelected] = useState<Booking | null>(null);
   const [updating, setUpdating] = useState<string | null>(null);
   const [loggingOut, setLoggingOut] = useState(false);
+  const [activeView, setActiveView] = useState<"bookings" | "kittens">("bookings");
   const router = useRouter();
 
   const handleLogout = async () => {
@@ -201,6 +203,26 @@ export default function AdminPage() {
       </header>
 
       <main className="container mx-auto max-w-6xl px-4 sm:px-6 py-8">
+        {/* View switcher */}
+        <div className="mb-6">
+          <Tabs value={activeView} onValueChange={(v) => setActiveView(v as "bookings" | "kittens")}>
+            <TabsList className="bg-background border border-border h-auto p-1.5">
+              <TabsTrigger value="bookings" className="gap-1.5">
+                <ClipboardList className="h-3.5 w-3.5" />
+                Заявки
+              </TabsTrigger>
+              <TabsTrigger value="kittens" className="gap-1.5 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                <PawPrint className="h-3.5 w-3.5" />
+                Котята
+              </TabsTrigger>
+            </TabsList>
+          </Tabs>
+        </div>
+
+        {activeView === "kittens" ? (
+          <AdminKittens />
+        ) : (
+          <>
         {/* Stats grid */}
         {stats && (
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 mb-8">
@@ -339,6 +361,8 @@ export default function AdminPage() {
               );
             })}
           </div>
+        )}
+          </>
         )}
       </main>
 

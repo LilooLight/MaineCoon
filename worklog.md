@@ -263,6 +263,38 @@ Unresolved issues / next steps (приоритеты для следующего
 - (note) Prisma Client в Next.js dev-сервере кешируется — при schema changes нужен raw SQL или рестарт сервера (нельзя сделать вручную).
 
 ---
+Task ID: cron-round-9
+Agent: Z.ai Code (cron webDevReview — round 9)
+Task: QA через agent-browser, исправление багов и добавление новых фич/стилей для питомника «Тихий Дом».
+
+Work Log:
+- Прочитал worklog.md, оценил статус: проект стабилен после раунда 8, lint чист, dev-сервер работает.
+- Обнаружил: availability-service (WebSocket, порт 3003) упал — перезапустил через keepalive-супервизор.
+- QA через agent-browser (1440×900): все 15 секций рендерятся, 0 ошибок в консоли.
+- **Admin CRUD для котят**: добавил модель ContactMessage в Prisma-схему. Создал API `/api/admin/kittens` (GET список + litters, POST create через raw SQL) и `/api/admin/kittens/[id]` (PATCH update, DELETE). Создал компонент `AdminKittens` — список котят с миниатюрами, badge статуса/окраса/пола, кнопками edit/delete, диалог create/edit с формой (имя, цена, окрас, пол, характер, статус, помёт, дата рождения, URL изображения/видео, описание, чекбокс «привит»). Добавил tab-switcher в admin-dashboard (Заявки/Котята). Протестировано end-to-end: create → котёнок появился в списке и БД → delete → toast + БД пуста.
+- **Багфикс Prisma stale client (create)**: `db.kitten.create()` падал с "Unknown argument videoUrl" (stale client). Переписал POST на raw SQL INSERT. PATCH/DELETE используют стандартный Prisma (не затрагивают новое поле).
+- **Страница контактов (/contacts)**: создал page с contact form (имя, email, телефон, тема-чипы, сообщение) → API `/api/contact` (POST, raw SQL INSERT в ContactMessage). Страница включает: 4 контакт-метода (телефон/WhatsApp/email/адрес), форма с валидацией и success-state, изображение рабочего места заводчика, карточки «Время ответа» и «Прежде чем писать». Протестировано: отправил форму → "Сообщение отправлено!" → DB подтверждает запись. Добавил /contacts в footer nav и sitemap.
+- Сгенерировано 1 новое изображение (contacts.jpg — рабочее место заводчика с мейн-куном).
+- ESLint: 0 ошибок.
+- Финальная QA: lint чист, admin kittens CRUD работает (create + delete), contacts page форма работает (DB подтверждает), мобильная адаптация сохранена, 0 ошибок в консоли. keepalive-супервизор запущен.
+
+Stage Summary:
+- Добавлено 5 новых компонентов/API/страниц: AdminKittens component, /api/admin/kittens (GET+POST), /api/admin/kittens/[id] (PATCH+DELETE), /contacts page, /api/contact (POST).
+- 1 изменение Prisma-схемы: ContactMessage model (id, name, email, phone?, subject, message, status, timestamps).
+- Ключевые новые фичи: ① admin CRUD для котят (create/edit/delete с формой), ② tab-switcher в админке (Заявки/Котята), ③ dedicated /contacts page с формой обратной связи.
+- Сгенерировано 1 новое изображение (contacts.jpg).
+- Техническое качество: raw SQL для обхода stale Prisma client (create + contact), cookie-consent-gated, lint чист, 0 runtime ошибок.
+
+Unresolved issues / next steps (приоритеты для следующего раунда):
+- (medium) Реальные 30-сек видео-превью поведения котят (video-generation skill).
+- (low) Админ: просмотр contact messages в dashboard.
+- (low) Админ: CRUD для помётов и производителей.
+- (low) Интеграция с реальным мессенджером (WhatsApp/Telegram) через API.
+- (low) Search functionality (kittens + blog) на главной.
+- (note) keepalive-супервизор: нужно запускать вручную в начале каждого раунда.
+- (note) Prisma Client stale: все новые поля требуют raw SQL до рестарта dev-сервера.
+
+---
 Task ID: round-7-blur
 Agent: subagent (blur placeholders)
 Task: Apply image blur placeholders across all cattery components
