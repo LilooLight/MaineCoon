@@ -7,7 +7,7 @@ const NAV_SECTIONS = [
   {
     title: "Питомник",
     links: [
-      { href: "#about", label: "О нас" },
+      { href: "/about", label: "О нас" },
       { href: "#producers", label: "Производители" },
       { href: "#kittens", label: "Котята" },
       { href: "#reviews", label: "Выпускники" },
@@ -19,7 +19,7 @@ const NAV_SECTIONS = [
       { href: "#blog", label: "Блог" },
       { href: "#faq", label: "Вопросы и ответы" },
       { href: "#kittens", label: "Бронирование" },
-      { href: "#about", label: "Генетические тесты" },
+      { href: "/about", label: "Генетические тесты" },
     ],
   },
 ];

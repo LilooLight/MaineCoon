@@ -232,6 +232,37 @@ Unresolved issues / next steps (приоритеты для следующего
 - (note) keepalive-супервизор работает, но sandbox может убивать процессы между cron-раундами — скрипт нужно запускать вручную в начале каждого раунда.
 
 ---
+Task ID: cron-round-8
+Agent: Z.ai Code (cron webDevReview — round 8)
+Task: QA через agent-browser, исправление багов и добавление новых фич/стилей для питомника «Тихий Дом».
+
+Work Log:
+- Прочитал worklog.md, оценил статус: проект стабилен после раунда 7, lint чист, dev-сервер работает.
+- Обнаружил: availability-service (WebSocket, порт 3003) упал — перезапустил через keepalive-супервизор.
+- QA через agent-browser (1440×900): все 14 секций рендерятся, 0 ошибок в консоли.
+- **Kitten behavior preview (видео-превью)**: добавил поле `videoUrl` в Prisma-схему Kitten (опциональное). Создал компонент `BehaviorPreview` внутри kitten detail dialog — показывает "Поведение в движении" с play/pause кнопкой. Если videoUrl задан — играет реальный <video>. Иначе — Ken Burns анимация (zoom-pan 8с loop) на изображении котёнка с personality-специфичной подписью ("Спокойно наблюдает", "Активно играет", "Самостоятельно гуляет", "Ласкается и мурчит"), прогресс-баром, виньеткой. Добавил CSS keyframes `ken-burns` и `ken-burns-progress` в globals.css.
+- **Article view analytics**: добавил поле `views` (Int) в Prisma-схему BlogPost. Создал API `/api/blog/[slug]/view` (POST — инкремент просмотров через raw SQL). Создал клиентский компонент `ArticleViewTracker` — проверяет consent в localStorage, и только если "accepted" отправляет POST. Без PII. Добавил на страницу статьи: отображение счётчика просмотров (Eye иконка + pluralizeViews) и трекер. Протестировано end-to-end: открыл статью → DB views: 0→1→2.
+- **Багфикс Prisma stale client**: после добавления полей `views`/`videoUrl` в схему, Next.js dev-сервер кешировал старый Prisma Client — `db.blogPost.update({data:{views:{increment:1}}})` падал с "Unknown argument views". Решение: переписал view API на raw SQL (`db.$executeRaw\`UPDATE BlogPost SET views = views + 1 WHERE slug = ${slug}\``) — обходит валидацию полей клиентом. Lint чист, API возвращает 200.
+- **Страница «О нас» (/about)**: создал server component с SEO-метаданными. Содержит: hero с заголовком и описанием, cover image (сгенерированное фото двух мейн-кунов у окна), stats band (производители/помёты/выпускники/лет), 4 принципа-карточки, history timeline (2020-2026: Первая кошка → Первый помёт → Регистрация → Первые выпускники → Сайт → Сегодня), честная заметка о титулах, CTA. Добавил ссылку «Читать всю историю» в About-секцию главной. Обновил footer nav (ссылки «О нас» → /about). Добавил /about в sitemap. Сгенерировал 1 новое изображение (about-history.jpg).
+- ESLint: 0 ошибок. Багфикс raw SQL для view tracking.
+- Финальная QA: lint чист, /about рендерится с timeline 2020-2026, kitten dialog показывает behavior preview с play/pause, article page показывает view count, view tracking работает (DB 0→2), мобильная адаптация (390×844) сохранена, 0 ошибок в консоли. keepalive-супервизор запущен.
+
+Stage Summary:
+- Добавлено 4 новых компонента/страницы: BehaviorPreview (в kittens-catalog), ArticleViewTracker, /about page, /api/blog/[slug]/view.
+- 2 изменения Prisma-схемы: Kitten.videoUrl (optional), BlogPost.views (Int default 0).
+- Ключевые новые фичи: ① kitten behavior preview (Ken Burns анимация или реальное видео), ② article view analytics (с cookie consent), ③ dedicated /about page с history timeline.
+- Сгенерировано 1 новое изображение (about-history.jpg — два мейн-куна у окна).
+- Техническое качество: raw SQL для обхода stale Prisma client, cookie-consent-gated analytics, server component для SEO, lint чист, 0 runtime ошибок.
+
+Unresolved issues / next steps (приоритеты для следующего раунда):
+- (medium) Реальные 30-сек видео-превью поведения котят (video-generation skill) — сейчас Ken Burns анимация как fallback.
+- (low) Админ-панель: CRUD для котят/помётов/производителей (сейчас только заявки).
+- (low) Интеграция с реальным мессенджером (WhatsApp/Telegram) через API.
+- (low) Страница контактов / форма обратной связи.
+- (note) keepalive-супервизор работает, но sandbox убивает процессы между cron-раундами — нужно запускать вручную в начале каждого раунда.
+- (note) Prisma Client в Next.js dev-сервере кешируется — при schema changes нужен raw SQL или рестарт сервера (нельзя сделать вручную).
+
+---
 Task ID: round-7-blur
 Agent: subagent (blur placeholders)
 Task: Apply image blur placeholders across all cattery components

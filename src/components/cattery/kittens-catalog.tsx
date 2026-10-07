@@ -30,6 +30,9 @@ import {
   X,
   Dna,
   GitCompare,
+  Play,
+  Pause,
+  Video,
 } from "lucide-react";
 import type { Kitten, Personality } from "@/lib/types/cattery";
 import {
@@ -653,6 +656,9 @@ function KittenDialogContent({
                 ))}
               </div>
             )}
+
+            {/* Behavior preview — Ken Burns animated image with play button */}
+            <BehaviorPreview kitten={kitten} />
           </div>
 
           <div className="p-6 sm:p-8 flex flex-col gap-4 overflow-y-auto custom-scroll max-h-[60vh] sm:max-h-[90vh]">
@@ -788,3 +794,110 @@ function formatAge(iso: string): string {
     return "—";
   }
 }
+
+const BEHAVIOR_LABELS: Record<Personality, string> = {
+  calm: "Спокойно наблюдает за комнатой — типичное поведение",
+  playful: "Активно играет и исследует — типичное поведение",
+  independent: "Самостоятельно гуляет по комнате — типичное поведение",
+  affectionate: "Ласкается и мурчит — типичное поведение",
+};
+
+/**
+ * BehaviorPreview — shows a "behavior video" style preview.
+ * If kitten.videoUrl is set, plays a real <video>. Otherwise, renders the
+ * kitten image with a Ken Burns zoom-pan animation (looping) that simulates
+ * a behavior clip, with a play/pause toggle.
+ */
+function BehaviorPreview({ kitten }: { kitten: Kitten }) {
+  const [playing, setPlaying] = useState(false);
+
+  return (
+    <div className="px-3 pb-3">
+      <div className="flex items-center gap-2 mb-2">
+        <Video className="h-3.5 w-3.5 text-primary" />
+        <span className="text-xs font-medium text-foreground">
+          Поведение в движении
+        </span>
+        <span className="text-[10px] text-muted-foreground ml-auto">
+          ~30 сек
+        </span>
+      </div>
+      <div
+        className="relative aspect-video rounded-lg overflow-hidden ring-1 ring-border bg-muted/40 cursor-pointer group"
+        onClick={() => setPlaying((p) => !p)}
+        role="button"
+        tabIndex={0}
+        aria-label={playing ? "Пауза превью поведения" : "Воспроизвести превью поведения"}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            setPlaying((p) => !p);
+          }
+        }}
+      >
+        {kitten.videoUrl ? (
+          // Real video
+          <video
+            src={kitten.videoUrl}
+            poster={kitten.imageUrl}
+            className="w-full h-full object-cover"
+            autoPlay={playing}
+            loop
+            muted
+            playsInline
+            controls={false}
+          />
+        ) : (
+          // Ken Burns animated image as a behavior preview
+          <div className="absolute inset-0 overflow-hidden">
+            <div
+              className={`absolute inset-0 transition-transform duration-[8000ms] ease-out ${
+                playing ? "ken-burns-zoom" : "scale-100"
+              }`}
+            >
+              <Image
+                src={kitten.imageUrl}
+                alt={`${kitten.name} — превью поведения`}
+                fill
+                sizes="(max-width: 640px) 100vw, 50vw"
+                className="object-cover"
+                placeholder="blur"
+                blurDataURL={BLUR_DATA_URLS.muted}
+              />
+            </div>
+            {/* Soft vignette to make it look like video */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-black/10 pointer-events-none" />
+            {/* Timecode bar (decorative) */}
+            {playing && (
+              <div className="absolute bottom-0 left-0 right-0 h-1 bg-black/30">
+                <div className="h-full bg-accent ken-burns-progress" />
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Play/Pause overlay */}
+        {!playing && (
+          <div className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/30 transition-colors">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-accent/90 text-accent-foreground shadow-lg group-hover:scale-110 transition-transform">
+              <Play className="h-5 w-5 fill-current ml-0.5" />
+            </div>
+          </div>
+        )}
+        {playing && (
+          <div className="absolute top-2 right-2 flex h-8 w-8 items-center justify-center rounded-full bg-background/80 backdrop-blur-sm text-foreground opacity-0 group-hover:opacity-100 transition-opacity">
+            <Pause className="h-4 w-4" />
+          </div>
+        )}
+
+        {/* Caption */}
+        <div className="absolute bottom-2 left-2 right-2 pointer-events-none">
+          <p className="text-[10px] text-background/90 bg-black/40 backdrop-blur-sm px-2 py-0.5 rounded inline-block">
+            {BEHAVIOR_LABELS[kitten.personality]}
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
+

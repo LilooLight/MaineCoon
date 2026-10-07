@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { BackToTop } from "@/components/cattery/back-to-top";
 import { Footer } from "@/components/cattery/footer";
+import { ArticleViewTracker } from "@/components/cattery/article-view-tracker";
 import { BLUR_DATA_URLS } from "@/lib/blur";
 import {
   ArrowLeft,
@@ -13,6 +14,7 @@ import {
   ChevronRight,
   PawPrint,
   BookOpen,
+  Eye,
 } from "lucide-react";
 import type { Metadata } from "next";
 
@@ -92,6 +94,7 @@ export default async function BlogArticlePage({ params }: PageProps) {
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
+      <ArticleViewTracker slug={post.slug} />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
@@ -150,6 +153,11 @@ export default async function BlogArticlePage({ params }: PageProps) {
             <span className="inline-flex items-center gap-1.5">
               <Clock className="h-4 w-4" />
               {post.readMinutes} мин чтения
+            </span>
+            <span className="text-muted-foreground/40">·</span>
+            <span className="inline-flex items-center gap-1.5">
+              <Eye className="h-4 w-4" />
+              {post.views} {pluralizeViews(post.views)}
             </span>
             <span className="text-muted-foreground/40">·</span>
             <span>Питомник «Тихий Дом»</span>
@@ -268,4 +276,12 @@ export default async function BlogArticlePage({ params }: PageProps) {
       <BackToTop />
     </div>
   );
+}
+
+function pluralizeViews(n: number): string {
+  const mod10 = n % 10;
+  const mod100 = n % 100;
+  if (mod10 === 1 && mod100 !== 11) return "просмотр";
+  if (mod10 >= 2 && mod10 <= 4 && (mod100 < 10 || mod100 >= 20)) return "просмотра";
+  return "просмотров";
 }

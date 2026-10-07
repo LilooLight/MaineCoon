@@ -64,6 +64,7 @@ model Kitten {
   litter       Litter    @relation(fields: [litterId], references: [id])
   birthDate    DateTime
   imageUrl     String
+  videoUrl     String?   // optional behavior video (mp4)
   status       String    @default("available") // available | reserved | adopted | expected
   statusLabel  String
   price        Int
@@ -101,6 +102,7 @@ model BlogPost {
   category    String   // e.g. "Здоровье", "Характер", "Уход", "Выбор"
   readMinutes Int      @default(5)
   imageUrl    String
+  views       Int      @default(0)
   published   Boolean  @default(true)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt

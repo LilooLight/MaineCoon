@@ -1,9 +1,10 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { Heart, ShieldCheck, Home, Users, Sparkles, MessageCircle } from "lucide-react";
+import { Heart, ShieldCheck, Home, Users, Sparkles, MessageCircle, ArrowRight } from "lucide-react";
 import { BLUR_DATA_URLS } from "@/lib/blur";
 
 const DIFFERENTIATORS = [
@@ -57,6 +58,13 @@ export function About() {
             титулы есть лишь у трёх — и мы этого не скрываем. Потому что главное
             не титулы, а характер, здоровье и психика котят.
           </p>
+          <Link
+            href="/about"
+            className="inline-flex items-center gap-1.5 mt-4 text-sm font-medium text-primary hover:text-primary/80 transition-colors group"
+          >
+            Читать всю историю
+            <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
+          </Link>
         </div>
 
         {/* Two-column: image + honest manifesto */}
