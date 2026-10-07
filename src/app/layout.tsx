@@ -4,6 +4,7 @@ import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as SonnerToaster } from "@/components/ui/sonner";
 import { ThemeProvider } from "@/components/theme-provider";
+import { CookieConsent } from "@/components/cattery/cookie-consent";
 
 const cormorant = Cormorant_Garamond({
   variable: "--font-cormorant",
@@ -73,7 +74,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ru" suppressHydrationWarning>
+    <html lang="ru" suppressHydrationWarning data-scroll-behavior="smooth">
       <body
         className={`${cormorant.variable} ${manrope.variable} antialiased bg-background text-foreground`}
       >
@@ -84,6 +85,7 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           {children}
+          <CookieConsent />
           <Toaster />
           <SonnerToaster position="bottom-right" richColors />
         </ThemeProvider>

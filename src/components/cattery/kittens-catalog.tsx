@@ -42,6 +42,7 @@ import { useBooking } from "./booking-context";
 import { SpotlightCard } from "./spotlight-card";
 import { useFavorites } from "@/hooks/use-favorites";
 import { useCompare } from "./compare-context";
+import { LiveAvailability } from "./live-availability";
 import { toast } from "sonner";
 
 const PERSONALITY_ICON: Record<Personality, typeof Moon> = {
@@ -145,6 +146,9 @@ export function KittensCatalog() {
             не по окрасу, а по темпераменту: спокойный для детей, игривый для
             подростков, ласковый для одинокого хозяина.
           </p>
+          <div className="mt-5">
+            <LiveAvailability />
+          </div>
         </div>
 
         {/* Filters panel */}
@@ -292,14 +296,22 @@ export function KittensCatalog() {
             </Button>
           </div>
         ) : (
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
-            {kittens.map((kitten) => (
-              <KittenCard
+          <div
+            key={`${filters.color}-${filters.gender}-${filters.personality}-${filters.status}`}
+            className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5"
+          >
+            {kittens.map((kitten, i) => (
+              <div
                 key={kitten.id}
-                kitten={kitten}
-                onSelect={() => setSelected(kitten)}
-                onBook={() => openBooking({ id: kitten.id, name: kitten.name })}
-              />
+                className="kitten-card-enter"
+                style={{ animationDelay: `${Math.min(i, 8) * 60}ms` }}
+              >
+                <KittenCard
+                  kitten={kitten}
+                  onSelect={() => setSelected(kitten)}
+                  onBook={() => openBooking({ id: kitten.id, name: kitten.name })}
+                />
+              </div>
             ))}
           </div>
         )}

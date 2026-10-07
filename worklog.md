@@ -102,3 +102,40 @@ Unresolved issues / next steps (приоритеты для следующего
 - (low) Анимация появления карточек котят при фильтрации (staggered fade).
 - (low) Cookie-баннер (GDPR/152-ФЗ) — пока не реализован.
 - (low) Интеграция с реальным мессенджером (WhatsApp/Telegram) через API для автоматизации ответов.
+
+---
+Task ID: cron-round-4
+Agent: Z.ai Code (cron webDevReview — round 4)
+Task: QA через agent-browser, исправление багов и добавление новых фич/стилей для питомника «Тихий Дом».
+
+Work Log:
+- Прочитал worklog.md, оценил статус: проект стабилен после раунда 3, lint чист, dev-сервер работает, все API → 200.
+- QA через agent-browser (1440×900): проверил все секции — 0 ошибок в консоли, 53 заголовка на странице, все 9 основных секций рендерятся.
+- **Страницы статей блога (/blog/[slug])**: создал server-component страницу с SSG (`generateStaticParams` + `generateMetadata`). Создал API `/api/blog/[slug]` (возвращает статью + related). Страница включает: мини-хедер, breadcrumb, обложку, lead-абзац, полный контент разбитый по абзацам, CTA-блок, похожие статьи, footer, back-to-top. JSON-LD Article schema для SEO. Обновил `blog.tsx` на главной: карточки теперь `<Link href="/blog/[slug]">` вместо диалога — лучше для SEO и индексации.
+- **Cookie-баннер (152-ФЗ)**: создал `CookieConsent` компонент — появляется через 1.5с если нет решения в localStorage, с двумя кнопками («Принять все» / «Только необходимые»), toast-уведомлениями, кнопкой закрытия. Добавлен глобально в layout.tsx (показывается на всех страницах включая статьи блога). Текст про 152-ФЗ и виды cookie.
+- **WebSocket mini-service**: создал `mini-services/availability-service/` (bun + socket.io, порт 3003). Health-check endpoint, события `availability:snapshot` (онлайн-зрители), `availability:event` (stats-update, kitten:viewing broadcast). Демо-события каждые 45с. Запущен в фоне через `setsid bun run dev`.
+- **LiveAvailability компонент**: подключается к `/?XTransformPort=3003` (через Caddy gateway), показывает live-индикатор «В эфире» с пульсирующей точкой, счётчик онлайн-зрителей, последние события. Graceful degradation — показывает «Соединение...» если WS недоступен (в локальном dev без gateway). Добавлен в каталог котят над фильтрами.
+- **Litter Timeline секция**: создал API `/api/litters` (с родителями и счётчиком available). Создал `LitterTimeline` — вертикальный timeline с date-маркерами (кружки с датой), карточками помётов, мини-фото родителей (Отец × Мать), badge «Ожидается» для будущих, счётчиком «котят в помёте» и «доступно», CTA «Записаться в лист ожидания» для ожидаемых. Добавил в page.tsx между KittensCatalog и BookingProcess, добавил ссылку «Помёты» в навигацию.
+- **Staggered fade анимация**: добавил keyframe `kitten-card-in` в globals.css, обернул карточки котят в div с `kitten-card-enter` классом и animationDelay по индексу (макс 8 × 60мс). Key на filter-state заставляет React перемонтировать grid при смене фильтров → анимация проигрывается заново.
+- **Стилевые улучшения**: добавил в globals.css — `.text-gradient-warm` (градиентный текст primary→secondary→accent), `.card-lift` (hover translateY), `.section-divider`, `.blob` (декоративные blur-пятна), `kitten-card-enter` анимация, `prefers-reduced-motion` fallback для новых анимаций.
+- **Next.js scroll-behavior fix**: добавил `data-scroll-behavior="smooth"` на `<html>` и ограничил CSS правило `html[data-scroll-behavior="smooth"]` — устраняет предупреждение Next.js о smooth scroll при route transitions.
+- Финальная QA: lint чист (0 ошибок), dev-сервер + availability-service работают (оба порта 3000 и 3003 слушают), страница блога `/blog/geneticheskie-testy-maine-coon-prosto` рендерится с полным контентом (HCM, PKDef, SMA, N/N объяснения), cookie-баннер появляется и исчезает после принятия, litter timeline показывает 3 помёта с правильными статусами, мобильная адаптация (390×844) сохранена.
+
+Stage Summary:
+- Добавлено 4 новых компонента: BlogArticlePage (server component, SSG), CookieConsent (152-ФЗ), LitterTimeline, LiveAvailability + WebSocket mini-service.
+- 2 новых API-роута: `/api/blog/[slug]`, `/api/litters`.
+- 1 новый mini-service: availability-service (socket.io, порт 3003) с real-time событиями.
+- Ключевые новые фичи: ① dedicated blog article pages (SEO-оптимизированные, SSG, JSON-LD Article), ② cookie consent (152-ФЗ compliance), ③ real-time availability через WebSocket, ④ litter timeline с хронологией помётов, ⑤ staggered fade анимация карточек.
+- Техническое качество: server components для SEO, SSG для статей, lint чист, 0 runtime ошибок.
+
+Unresolved issues / next steps (приоритеты для следующего раунда):
+- (medium) 30-секундные видео-превью поведения котят (video-understanding skill или <video> с placeholder).
+- (low) Lazy-loading изображений с blur-placeholder (next/image placeholder=blur).
+- (low) Админ-панель для заводчика (управление котятами/помётами/броном) — пока только БД.
+- (low) Интеграция с реальным мессенджером (WhatsApp/Telegram) через API.
+- (low) Страница 404 кастомная (собака/кот не найден).
+- (low) Аналитика просмотров статей (при согласии cookie).
+
+---
+Бонус (в рамках того же раунда):
+- Обновил `sitemap.ts` — теперь динамически включает все опубликованные статьи блога (`/blog/[slug]`) с updatedAt и priority 0.8. Проверено: sitemap.xml содержит все 4 статьи + 9 секций главной страницы. SEO полностью настроен.

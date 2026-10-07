@@ -11,6 +11,7 @@ import { ShowChampions } from "@/components/cattery/show-champions";
 import { KittensCatalog } from "@/components/cattery/kittens-catalog";
 import { PersonalityQuiz } from "@/components/cattery/personality-quiz";
 import { BookingProcess } from "@/components/cattery/booking-process";
+import { LitterTimeline } from "@/components/cattery/litter-timeline";
 import { Reviews } from "@/components/cattery/reviews";
 import { Blog } from "@/components/cattery/blog";
 import { FAQ } from "@/components/cattery/faq";
@@ -34,6 +35,7 @@ export default function Home() {
             <ShowChampions />
             <PersonalityQuiz />
             <KittensCatalog />
+            <LitterTimeline />
             <BookingProcess />
             <Reviews />
             <Blog />
