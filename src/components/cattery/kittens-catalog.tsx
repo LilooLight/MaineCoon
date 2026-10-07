@@ -33,6 +33,7 @@ import {
   Play,
   Pause,
   Video,
+  Share2,
 } from "lucide-react";
 import type { Kitten, Personality } from "@/lib/types/cattery";
 import {
@@ -423,6 +424,28 @@ function KittenCard({
     });
   };
 
+  const handleShare = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    const url = `${window.location.origin}/#kittens`;
+    const shareData = {
+      title: `${kitten.name} — ${kitten.colorLabel} мейн-кун | Тихий Дом`,
+      text: `Посмотрите котёнка ${kitten.name} — ${kitten.personalityLabel.toLowerCase()}, ${kitten.colorLabel.toLowerCase()}. ${kitten.price.toLocaleString("ru-RU")} ₽`,
+      url,
+    };
+    try {
+      if (navigator.share) {
+        await navigator.share(shareData);
+      } else {
+        await navigator.clipboard.writeText(url);
+        toast.success("Ссылка скопирована", {
+          description: `Поделитесь котёнком ${kitten.name} с близкими.`,
+        });
+      }
+    } catch {
+      // user cancelled share — no toast
+    }
+  };
+
   return (
     <SpotlightCard className="rounded-2xl ring-1 ring-border h-full">
     <Card className="group overflow-hidden border-0 bg-card hover:shadow-lg transition-all duration-300 flex flex-col h-full">
@@ -468,6 +491,14 @@ function KittenCard({
             }`}
           >
             <GitCompare className="h-4 w-4" />
+          </button>
+          <button
+            type="button"
+            onClick={handleShare}
+            aria-label="Поделиться"
+            className="flex h-8 w-8 items-center justify-center rounded-full bg-background/90 backdrop-blur-sm border border-border text-foreground hover:bg-background hover:scale-110 transition-all shadow-sm"
+          >
+            <Share2 className="h-4 w-4" />
           </button>
         </div>
 

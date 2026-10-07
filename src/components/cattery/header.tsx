@@ -4,11 +4,12 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
-import { PawPrint, Menu, Phone, Heart } from "lucide-react";
+import { PawPrint, Menu, Phone, Heart, Search } from "lucide-react";
 import { useBooking } from "./booking-context";
 import { useFavorites } from "@/hooks/use-favorites";
 import { ThemeToggle } from "./theme-toggle";
 import { FavoritesPanel } from "./favorites-panel";
+import { SearchPalette, useSearchShortcut } from "./search-palette";
 
 const NAV_LINKS = [
   { href: "#about", label: "О питомнике" },
@@ -26,8 +27,10 @@ export function Header() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [favOpen, setFavOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
   const { openWaitingList } = useBooking();
   const { count, hydrated } = useFavorites();
+  useSearchShortcut(() => setSearchOpen(true));
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 12);
@@ -76,6 +79,19 @@ export function Header() {
 
           {/* Desktop actions */}
           <div className="hidden lg:flex items-center gap-2">
+            {/* Search button */}
+            <button
+              type="button"
+              onClick={() => setSearchOpen(true)}
+              aria-label="Поиск"
+              className="inline-flex h-9 items-center gap-2 px-3 rounded-full border border-border bg-background/60 text-muted-foreground transition-colors hover:bg-muted hover:border-primary/40 hover:text-foreground"
+            >
+              <Search className="h-4 w-4" />
+              <span className="text-sm">Поиск</span>
+              <kbd className="hidden xl:inline-flex h-5 items-center rounded border border-border bg-muted px-1 text-[10px]">
+                ⌘K
+              </kbd>
+            </button>
             <a
               href="tel:+74951234567"
               className="flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors px-2"
@@ -117,6 +133,15 @@ export function Header() {
 
           {/* Mobile menu */}
           <div className="lg:hidden flex items-center gap-1.5">
+            {/* Search (mobile) */}
+            <button
+              type="button"
+              onClick={() => setSearchOpen(true)}
+              aria-label="Поиск"
+              className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-border bg-background/60 text-foreground transition-colors hover:bg-muted"
+            >
+              <Search className="h-4 w-4" />
+            </button>
             {/* Favorites (mobile) */}
             <button
               type="button"
@@ -200,6 +225,7 @@ export function Header() {
         </div>
       </div>
       <FavoritesPanel open={favOpen} onOpenChange={setFavOpen} />
+      <SearchPalette open={searchOpen} onOpenChange={setSearchOpen} />
     </header>
   );
 }

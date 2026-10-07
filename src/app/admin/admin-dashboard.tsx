@@ -34,6 +34,7 @@ import {
   HeartHandshake,
 } from "lucide-react";
 import { AdminKittens } from "@/components/cattery/admin-kittens";
+import { AdminMessages } from "@/components/cattery/admin-messages";
 
 interface Booking {
   id: string;
@@ -91,7 +92,7 @@ export default function AdminPage() {
   const [selected, setSelected] = useState<Booking | null>(null);
   const [updating, setUpdating] = useState<string | null>(null);
   const [loggingOut, setLoggingOut] = useState(false);
-  const [activeView, setActiveView] = useState<"bookings" | "kittens">("bookings");
+  const [activeView, setActiveView] = useState<"bookings" | "kittens" | "messages">("bookings");
   const router = useRouter();
 
   const handleLogout = async () => {
@@ -205,7 +206,7 @@ export default function AdminPage() {
       <main className="container mx-auto max-w-6xl px-4 sm:px-6 py-8">
         {/* View switcher */}
         <div className="mb-6">
-          <Tabs value={activeView} onValueChange={(v) => setActiveView(v as "bookings" | "kittens")}>
+          <Tabs value={activeView} onValueChange={(v) => setActiveView(v as "bookings" | "kittens" | "messages")}>
             <TabsList className="bg-background border border-border h-auto p-1.5">
               <TabsTrigger value="bookings" className="gap-1.5">
                 <ClipboardList className="h-3.5 w-3.5" />
@@ -215,12 +216,18 @@ export default function AdminPage() {
                 <PawPrint className="h-3.5 w-3.5" />
                 Котята
               </TabsTrigger>
+              <TabsTrigger value="messages" className="gap-1.5 data-[state=active]:bg-secondary data-[state=active]:text-secondary-foreground">
+                <Mail className="h-3.5 w-3.5" />
+                Сообщения
+              </TabsTrigger>
             </TabsList>
           </Tabs>
         </div>
 
         {activeView === "kittens" ? (
           <AdminKittens />
+        ) : activeView === "messages" ? (
+          <AdminMessages />
         ) : (
           <>
         {/* Stats grid */}

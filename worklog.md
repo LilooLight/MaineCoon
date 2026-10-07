@@ -295,6 +295,36 @@ Unresolved issues / next steps (приоритеты для следующего
 - (note) Prisma Client stale: все новые поля требуют raw SQL до рестарта dev-сервера.
 
 ---
+Task ID: cron-round-10
+Agent: Z.ai Code (cron webDevReview — round 10)
+Task: QA через agent-browser, исправление багов и добавление новых фич/стилей для питомника «Тихий Дом».
+
+Work Log:
+- Прочитал worklog.md, оценил статус: проект стабилен после раунда 9, lint чист, dev-сервер работает.
+- Обнаружил: availability-service (WebSocket, порт 3003) упал — перезапустил через keepalive-супервизор.
+- QA через agent-browser (1440×900): все 15 секций рендерятся, 0 ошибок в консоли.
+- **Глобальный поиск (Search Palette)**: создал API `/api/search` (GET — поиск по котятам, производителям, статьям через raw SQL с COLLATE NOCASE для case-insensitive Cyrillic). Создал компонент `SearchPalette` — command-palette-style диалог с debounced-поиском (250мс), grouped results (Котята/Производители/Статьи), keyboard navigation (↑↓ + Enter), результат-карточки с миниатюрами/badge/ценой. Добавил кнопку «Поиск» в header (десктоп с ⌘K badge + мобильный). Зарегистрировал Ctrl+K / Cmd+K shortcut через хук `useSearchShortcut`. Протестировано: поиск «серебр» → найдены котята + производитель Себастьян.
+- **Багфикс search case-sensitivity**: первый вариант через Prisma `contains` возвращал пустые результаты для Cyrillic (SQLite contains чувствителен к регистру). Переписал на raw SQL с `LIKE ${pattern} COLLATE NOCASE` — работает для русского и английского.
+- **Admin сообщения (AdminMessages)**: создал API `/api/admin/messages` (GET список + stats через raw SQL, PATCH статус, DELETE). Создал компонент `AdminMessages` — список сообщений с stats grid (Всего/Новые/Прочитано/Отвечено), tabs-фильтр по статусам, карточки с именем/темой/сообщением/email/телефоном/датой, detail-диалог с кнопками «Ответить» (mailto), «Отвечено» (статус), «Закрыть», «Удалить». Auto-mark as read при открытии. Добавил tab «Сообщения» в admin dashboard (теперь 3 вкладки: Заявки/Котята/Сообщения). Протестировано: открыл существующее сообщение → детали показаны → статус обновлён.
+- **Share kitten feature**: добавил кнопку «Поделиться» (Share2 icon) на каждую карточку котёнка. Использует Web Share API (navigator.share) если доступно, иначе копирует URL в clipboard с toast-уведомлением. Протестировано: клик → «Ссылка скопирована / Поделитесь котёнком Барсик с близкими.»
+- ESLint: 0 ошибок.
+- Финальная QA: lint чист, search palette работает (поиск «серебр» → результаты), admin messages работают (detail dialog + статус), share button работает (clipboard + toast), мобильная адаптация (390×844) сохранена, 0 ошибок в консоли. keepalive-супервизор запущен.
+
+Stage Summary:
+- Добавлено 5 новых компонентов/API: SearchPalette component + useSearchShortcut hook, /api/search (raw SQL + COLLATE NOCASE), AdminMessages component, /api/admin/messages (GET+PATCH+DELETE raw SQL), share button в KittenCard.
+- Ключевые новые фичи: ① глобальный поиск с command palette (Ctrl+K, grouped results, keyboard nav), ② admin сообщения (просмотр/статус/ответ/удаление), ③ share kitten (Web Share API + clipboard fallback), ④ 3-я вкладка в админке.
+- Техническое качество: raw SQL с COLLATE NOCASE для Cyrillic search, raw SQL для ContactMessage (stale client workaround), Web Share API + clipboard fallback, lint чист, 0 runtime ошибок.
+
+Unresolved issues / next steps (приоритеты для следующего раунда):
+- (medium) Реальные 30-сек видео-превью поведения котят (video-generation skill).
+- (low) Админ: CRUD для помётов и производителей.
+- (low) Интеграция с реальным мессенджером (WhatsApp/Telegram) через API.
+- (low) Search: добавить поиск по отзывам и FAQ.
+- (low) PWA: service worker для offline-доступа.
+- (note) keepalive-супервизор: нужно запускать вручную в начале каждого раунда.
+- (note) Prisma Client stale: все новые поля требуют raw SQL до рестарта dev-сервера.
+
+---
 Task ID: round-7-blur
 Agent: subagent (blur placeholders)
 Task: Apply image blur placeholders across all cattery components
