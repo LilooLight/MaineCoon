@@ -1,0 +1,122 @@
+// Prisma schema for family Maine Coon cattery "Тихий Дом"
+// Learn more: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// Breeding cats — 6 producers (3 pairs: male + female)
+model Producer {
+  id          String   @id @default(cuid())
+  name        String
+  role        String   // "male" | "female"
+  color       String   // "black" | "tabby" | "silver" | "silver-red"
+  colorLabel  String   // human readable: "Чёрный", "Дикий (табби)", "Серебряный", "Серебряно-рыжий"
+  birthDate   String
+  imageUrl    String
+  bio         String
+  personality String   // calm / playful / independent / affectionate
+  hasTitles   Boolean  @default(false)
+  titles      String   // JSON array of titles (empty if none — honest approach)
+  // Genetic tests — all OPEN for transparency
+  testHCM     String   @default("N/N")   // Hypertrophic Cardiomyopathy
+  testPKDef   String   @default("N/N")   // Pyruvate Kinase Deficiency
+  testSMA     String   @default("N/N")   // Spinal Muscular Atrophy
+  testDate    String   // when tests were performed
+  registry    String   // родословная / registry number
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  littersAsFather Litter[] @relation("LitterFather")
+  littersAsMother Litter[] @relation("LitterMother")
+}
+
+// Litter — 2-3 per year
+model Litter {
+  id          String    @id @default(cuid())
+  name        String    // e.g. "Помёт «Лето 2024»"
+  fatherId    String
+  motherId    String
+  father      Producer  @relation("LitterFather", fields: [fatherId], references: [id])
+  mother      Producer  @relation("LitterMother", fields: [motherId], references: [id])
+  bornAt      DateTime
+  expected    Boolean   @default(false) // expected vs available
+  notes       String
+  kittens     Kitten[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+// Kittens for the catalog with character filter
+model Kitten {
+  id           String    @id @default(cuid())
+  name         String
+  color        String    // black | tabby | silver | silver-red
+  colorLabel   String
+  gender       String    // male | female
+  personality  String    // calm | playful | independent | affectionate
+  personalityLabel String
+  litterId     String
+  litter       Litter    @relation(fields: [litterId], references: [id])
+  birthDate    DateTime
+  imageUrl     String
+  status       String    @default("available") // available | reserved | adopted | expected
+  statusLabel  String
+  price        Int
+  description  String
+  vaccinated   Boolean   @default(false)
+  documented   Boolean   @default(true)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+}
+
+// Reviews — "graduates" with full case history
+model Review {
+  id          String   @id @default(cuid())
+  authorName  String
+  authorRole  String   // e.g. "Семья с двумя детьми", "Удалённый дизайнер"
+  kittenName  String
+  kittenColor String
+  adoptedAt   String   // e.g. "Осень 2023"
+  rating      Int      @default(5)
+  text        String
+  imageUrl    String?
+  published   Boolean  @default(true)
+  featured    Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// Blog posts for SEO
+model BlogPost {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  title       String
+  excerpt     String
+  content     String
+  category    String   // e.g. "Здоровье", "Характер", "Уход", "Выбор"
+  readMinutes Int      @default(5)
+  imageUrl    String
+  published   Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// Booking — online reservation (the differentiator competitors lack)
+model Booking {
+  id          String   @id @default(cuid())
+  name        String
+  email       String
+  phone       String
+  kittenId    String?  // nullable — waiting list without a specific kitten
+  kittenName  String?
+  message     String
+  type        String   @default("booking") // booking | waiting-list
+  status      String   @default("new") // new | contacted | confirmed | closed
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
