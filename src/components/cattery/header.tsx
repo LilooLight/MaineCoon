@@ -15,6 +15,7 @@ const NAV_LINKS = [
   { href: "#producers", label: "Производители" },
   { href: "#kittens", label: "Котята" },
   { href: "#litters", label: "Помёты" },
+  { href: "#breeder", label: "Заводчик" },
   { href: "#reviews", label: "Выпускники" },
   { href: "#blog", label: "Блог" },
   { href: "#faq", label: "Вопросы" },
