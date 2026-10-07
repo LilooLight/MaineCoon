@@ -15,6 +15,7 @@ import {
   Car,
 } from "lucide-react";
 import { useBooking } from "./booking-context";
+import { BLUR_DATA_URLS } from "@/lib/blur";
 
 const VISIT_RULES = [
   {
@@ -66,6 +67,8 @@ export function VisitUs() {
                 fill
                 sizes="(max-width: 1024px) 100vw, 50vw"
                 className="object-cover"
+                placeholder="blur"
+                blurDataURL={BLUR_DATA_URLS.muted}
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
 

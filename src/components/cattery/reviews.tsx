@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Star, Quote, Heart } from "lucide-react";
 import type { Review } from "@/lib/types/cattery";
+import { BLUR_DATA_URLS } from "@/lib/blur";
 
 export function Reviews() {
   const [reviews, setReviews] = useState<Review[]>([]);
@@ -87,6 +88,8 @@ function FeaturedReviewCard({ review }: { review: Review }) {
             fill
             sizes="(max-width: 1024px) 100vw, 33vw"
             className="object-cover"
+            placeholder="blur"
+            blurDataURL={BLUR_DATA_URLS.muted}
           />
           <div className="absolute top-3 left-3 bg-background/90 backdrop-blur-sm px-2.5 py-1 rounded-full text-xs font-medium text-foreground border border-border">
             {review.adoptedAt}

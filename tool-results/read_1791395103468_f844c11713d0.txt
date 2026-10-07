@@ -1,0 +1,784 @@
+     1→     1→"use client";
+     2→     2→
+     3→     3→import { useEffect, useState, useCallback } from "react";
+     4→     4→import Image from "next/image";
+     5→     5→import { Badge } from "@/components/ui/badge";
+     6→     6→import { Card, CardContent, CardFooter } from "@/components/ui/card";
+     7→     7→import { Button } from "@/components/ui/button";
+     8→     8→import { Skeleton } from "@/components/ui/skeleton";
+     9→     9→import {
+    10→    10→  Dialog,
+    11→    11→  DialogContent,
+    12→    12→  DialogHeader,
+    13→    13→  DialogTitle,
+    14→    14→  DialogDescription,
+    15→    15→} from "@/components/ui/dialog";
+    16→    16→import {
+    17→    17→  Moon,
+    18→    18→  Sparkles,
+    19→    19→  Mountain,
+    20→    20→  Heart,
+    21→    21→  PawPrint,
+    22→    22→  Mars,
+    23→    23→  Venus,
+    24→    24→  Syringe,
+    25→    25→  FileCheck,
+    26→    26→  CalendarDays,
+    27→    27→  Users,
+    28→    28→  ChevronRight,
+    29→    29→  Filter,
+    30→    30→  X,
+    31→    31→  Dna,
+    32→    32→  GitCompare,
+    33→    33→} from "lucide-react";
+    34→    34→import type { Kitten, Personality } from "@/lib/types/cattery";
+    35→    35→import {
+    36→    36→  COLOR_OPTIONS,
+    37→    37→  GENDER_OPTIONS,
+    38→    38→  PERSONALITY_OPTIONS,
+    39→    39→  PERSONALITY_DESCRIPTIONS,
+    40→    40→} from "@/lib/types/cattery";
+    41→    41→import { useBooking } from "./booking-context";
+    42→    42→import { SpotlightCard } from "./spotlight-card";
+    43→    43→import { useFavorites } from "@/hooks/use-favorites";
+    44→    44→import { useCompare } from "./compare-context";
+    45→    45→import { LiveAvailability } from "./live-availability";
+    46→    46→import { toast } from "sonner";
+    47→    47→
+    48→    48→const PERSONALITY_ICON: Record<Personality, typeof Moon> = {
+    49→    49→  calm: Moon,
+    50→    50→  playful: Sparkles,
+    51→    51→  independent: Mountain,
+    52→    52→  affectionate: Heart,
+    53→    53→};
+    54→    54→
+    55→    55→const STATUS_STYLES: Record<string, string> = {
+    56→    56→  available: "bg-primary text-primary-foreground",
+    57→    57→  reserved: "bg-secondary text-secondary-foreground",
+    58→    58→  adopted: "bg-muted-foreground text-background",
+    59→    59→  expected: "bg-accent text-accent-foreground",
+    60→    60→};
+    61→    61→
+    62→    62→const GENDER_LABEL: Record<string, { label: string; icon: typeof Mars }> = {
+    63→    63→  male: { label: "Кот", icon: Mars },
+    64→    64→  female: { label: "Кошка", icon: Venus },
+    65→    65→};
+    66→    66→
+    67→    67→export function KittensCatalog() {
+    68→    68→  const [kittens, setKittens] = useState<Kitten[]>([]);
+    69→    69→  const [loading, setLoading] = useState(true);
+    70→    70→  const [filters, setFilters] = useState({
+    71→    71→    color: "all",
+    72→    72→    gender: "all",
+    73→    73→    personality: "all",
+    74→    74→    status: "all",
+    75→    75→  });
+    76→    76→  const [activeCount, setActiveCount] = useState(0);
+    77→    77→  const [selected, setSelected] = useState<Kitten | null>(null);
+    78→    78→  const { openBooking } = useBooking();
+    79→    79→
+    80→    80→  const fetchKittens = useCallback(async () => {
+    81→    81→    setLoading(true);
+    82→    82→    const params = new URLSearchParams();
+    83→    83→    Object.entries(filters).forEach(([k, v]) => {
+    84→    84→      if (v !== "all") params.set(k, v);
+    85→    85→    });
+    86→    86→    try {
+    87→    87→      const res = await fetch(`/api/kittens?${params.toString()}`);
+    88→    88→      const data = await res.json();
+    89→    89→      setKittens(data.kittens ?? []);
+    90→    90→    } catch {
+    91→    91→      setKittens([]);
+    92→    92→    } finally {
+    93→    93→      setLoading(false);
+    94→    94→    }
+    95→    95→  }, [filters]);
+    96→    96→
+    97→    97→  useEffect(() => {
+    98→    98→    const t = setTimeout(fetchKittens, 150);
+    99→    99→    return () => clearTimeout(t);
+   100→   100→  }, [fetchKittens]);
+   101→   101→
+   102→   102→  useEffect(() => {
+   103→   103→    setActiveCount(
+   104→   104→      Object.values(filters).filter((v) => v !== "all").length
+   105→   105→    );
+   106→   106→  }, [filters]);
+   107→   107→
+   108→   108→  // Listen for filter requests from the personality quiz
+   109→   109→  useEffect(() => {
+   110→   110→    const handler = (e: Event) => {
+   111→   111→      const detail = (e as CustomEvent).detail as {
+   112→   112→        personality?: Personality;
+   113→   113→      };
+   114→   114→      if (detail?.personality) {
+   115→   115→        setFilters((f) => ({ ...f, personality: detail.personality! }));
+   116→   116→      }
+   117→   117→    };
+   118→   118→    window.addEventListener("cattery:setFilter", handler);
+   119→   119→    return () => window.removeEventListener("cattery:setFilter", handler);
+   120→   120→  }, []);
+   121→   121→
+   122→   122→  const updateFilter = (key: keyof typeof filters, value: string) => {
+   123→   123→    setFilters((f) => ({ ...f, [key]: value }));
+   124→   124→  };
+   125→   125→
+   126→   126→  const resetFilters = () => {
+   127→   127→    setFilters({ color: "all", gender: "all", personality: "all", status: "all" });
+   128→   128→  };
+   129→   129→
+   130→   130→  const availableCount = kittens.filter((k) => k.status === "available").length;
+   131→   131→
+   132→   132→  return (
+   133→   133→    <section id="kittens" className="py-16 sm:py-24 bg-background">
+   134→   134→      <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+   135→   135→        {/* Header */}
+   136→   136→        <div className="max-w-3xl mb-10 lg:mb-14">
+   137→   137→          <Badge variant="outline" className="mb-4 border-accent/30 bg-accent/5 text-accent">
+   138→   138→            <PawPrint className="h-3.5 w-3.5 mr-1.5" />
+   139→   139→            Каталог котят · с фильтрами
+   140→   140→          </Badge>
+   141→   141→          <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-semibold text-foreground leading-tight mb-5">
+   142→   142→            Найдите котёнка под характер семьи
+   143→   143→          </h2>
+   144→   144→          <p className="text-lg text-muted-foreground leading-relaxed">
+   145→   145→            Фильтр по характеру — то, чего нет ни у одного конкурента. Выбирайте
+   146→   146→            не по окрасу, а по темпераменту: спокойный для детей, игривый для
+   147→   147→            подростков, ласковый для одинокого хозяина.
+   148→   148→          </p>
+   149→   149→          <div className="mt-5">
+   150→   150→            <LiveAvailability />
+   151→   151→          </div>
+   152→   152→        </div>
+   153→   153→
+   154→   154→        {/* Filters panel */}
+   155→   155→        <div className="rounded-2xl bg-muted/40 ring-1 ring-border p-4 sm:p-6 mb-8">
+   156→   156→          <div className="flex items-center justify-between mb-4">
+   157→   157→            <div className="flex items-center gap-2">
+   158→   158→              <Filter className="h-5 w-5 text-primary" />
+   159→   159→              <h3 className="font-serif text-lg font-semibold text-foreground">
+   160→   160→                Фильтры
+   161→   161→              </h3>
+   162→   162→              {activeCount > 0 && (
+   163→   163→                <Badge className="bg-primary text-primary-foreground ml-1">
+   164→   164→                  {activeCount}
+   165→   165→                </Badge>
+   166→   166→              )}
+   167→   167→            </div>
+   168→   168→            {activeCount > 0 && (
+   169→   169→              <Button
+   170→   170→                variant="ghost"
+   171→   171→                size="sm"
+   172→   172→                onClick={resetFilters}
+   173→   173→                className="text-muted-foreground hover:text-foreground"
+   174→   174→              >
+   175→   175→                <X className="h-4 w-4 mr-1" />
+   176→   176→                Сбросить
+   177→   177→              </Button>
+   178→   178→            )}
+   179→   179→          </div>
+   180→   180→
+   181→   181→          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+   182→   182→            {/* Color filter */}
+   183→   183→            <FilterGroup label="Окрас">
+   184→   184→              <div className="flex flex-wrap gap-1.5">
+   185→   185→                {COLOR_OPTIONS.map((opt) => (
+   186→   186→                  <FilterChip
+   187→   187→                    key={opt.value}
+   188→   188→                    active={filters.color === opt.value}
+   189→   189→                    onClick={() => updateFilter("color", opt.value)}
+   190→   190→                  >
+   191→   191→                    {opt.label}
+   192→   192→                  </FilterChip>
+   193→   193→                ))}
+   194→   194→              </div>
+   195→   195→            </FilterGroup>
+   196→   196→
+   197→   197→            {/* Gender filter */}
+   198→   198→            <FilterGroup label="Пол">
+   199→   199→              <div className="flex flex-wrap gap-1.5">
+   200→   200→                {GENDER_OPTIONS.map((opt) => (
+   201→   201→                  <FilterChip
+   202→   202→                    key={opt.value}
+   203→   203→                    active={filters.gender === opt.value}
+   204→   204→                    onClick={() => updateFilter("gender", opt.value)}
+   205→   205→                  >
+   206→   206→                    {opt.label}
+   207→   207→                  </FilterChip>
+   208→   208→                ))}
+   209→   209→              </div>
+   210→   210→            </FilterGroup>
+   211→   211→
+   212→   212→            {/* Personality filter — the key differentiator */}
+   213→   213→            <FilterGroup label="Характер" highlight>
+   214→   214→              <div className="flex flex-wrap gap-1.5">
+   215→   215→                {PERSONALITY_OPTIONS.map((opt) => {
+   216→   216→                  const Icon =
+   217→   217→                    opt.icon === "Moon" ? Moon :
+   218→   218→                    opt.icon === "Sparkles" ? Sparkles :
+   219→   219→                    opt.icon === "Mountain" ? Mountain :
+   220→   220→                    opt.icon === "Heart" ? Heart : PawPrint;
+   221→   221→                  return (
+   222→   222→                    <FilterChip
+   223→   223→                      key={opt.value}
+   224→   224→                      active={filters.personality === opt.value}
+   225→   225→                      onClick={() => updateFilter("personality", opt.value)}
+   226→   226→                    >
+   227→   227→                      <Icon className="h-3 w-3 mr-1" />
+   228→   228→                      {opt.label}
+   229→   229→                    </FilterChip>
+   230→   230→                  );
+   231→   231→                })}
+   232→   232→              </div>
+   233→   233→            </FilterGroup>
+   234→   234→
+   235→   235→            {/* Status filter */}
+   236→   236→            <FilterGroup label="Статус">
+   237→   237→              <div className="flex flex-wrap gap-1.5">
+   238→   238→                <FilterChip
+   239→   239→                  active={filters.status === "all"}
+   240→   240→                  onClick={() => updateFilter("status", "all")}
+   241→   241→                >
+   242→   242→                  Все
+   243→   243→                </FilterChip>
+   244→   244→                <FilterChip
+   245→   245→                  active={filters.status === "available"}
+   246→   246→                  onClick={() => updateFilter("status", "available")}
+   247→   247→                >
+   248→   248→                  Доступны
+   249→   249→                </FilterChip>
+   250→   250→                <FilterChip
+   251→   251→                  active={filters.status === "expected"}
+   252→   252→                  onClick={() => updateFilter("status", "expected")}
+   253→   253→                >
+   254→   254→                  Ожидаются
+   255→   255→                </FilterChip>
+   256→   256→              </div>
+   257→   257→            </FilterGroup>
+   258→   258→          </div>
+   259→   259→
+   260→   260→          {/* Result count */}
+   261→   261→          <div className="mt-4 pt-4 border-t border-border flex items-center justify-between flex-wrap gap-2">
+   262→   262→            <p className="text-sm text-muted-foreground">
+   263→   263→              {loading ? (
+   264→   264→                "Загрузка..."
+   265→   265→              ) : (
+   266→   266→                <>
+   267→   267→                  Найдено: <span className="font-semibold text-foreground">{kittens.length}</span> котят
+   268→   268→                  {availableCount > 0 && (
+   269→   269→                    <>, из них <span className="font-semibold text-primary">{availableCount}</span> доступно</>
+   270→   270→                  )}
+   271→   271→                </>
+   272→   272→              )}
+   273→   273→            </p>
+   274→   274→          </div>
+   275→   275→        </div>
+   276→   276→
+   277→   277→        {/* Kittens grid */}
+   278→   278→        {loading ? (
+   279→   279→          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+   280→   280→            {[1, 2, 3, 4, 5, 6].map((i) => (
+   281→   281→              <Skeleton key={i} className="h-[420px] rounded-2xl" />
+   282→   282→            ))}
+   283→   283→          </div>
+   284→   284→        ) : kittens.length === 0 ? (
+   285→   285→          <div className="text-center py-16 rounded-2xl bg-muted/30 ring-1 ring-border">
+   286→   286→            <PawPrint className="h-12 w-12 text-muted-foreground/40 mx-auto mb-4" />
+   287→   287→            <h3 className="font-serif text-xl font-semibold text-foreground mb-2">
+   288→   288→              Котят по фильтрам не нашлось
+   289→   289→            </h3>
+   290→   290→            <p className="text-muted-foreground mb-5 max-w-md mx-auto">
+   291→   291→              Попробуйте смягчить фильтры или запишитесь в лист ожидания — мы
+   292→   292→              сообщим, когда появится подходящий котёнок.
+   293→   293→            </p>
+   294→   294→            <Button onClick={resetFilters} variant="outline">
+   295→   295→              Сбросить фильтры
+   296→   296→            </Button>
+   297→   297→          </div>
+   298→   298→        ) : (
+   299→   299→          <div
+   300→   300→            key={`${filters.color}-${filters.gender}-${filters.personality}-${filters.status}`}
+   301→   301→            className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5"
+   302→   302→          >
+   303→   303→            {kittens.map((kitten, i) => (
+   304→   304→              <div
+   305→   305→                key={kitten.id}
+   306→   306→                className="kitten-card-enter"
+   307→   307→                style={{ animationDelay: `${Math.min(i, 8) * 60}ms` }}
+   308→   308→              >
+   309→   309→                <KittenCard
+   310→   310→                  kitten={kitten}
+   311→   311→                  onSelect={() => setSelected(kitten)}
+   312→   312→                  onBook={() => openBooking({ id: kitten.id, name: kitten.name })}
+   313→   313→                />
+   314→   314→              </div>
+   315→   315→            ))}
+   316→   316→          </div>
+   317→   317→        )}
+   318→   318→      </div>
+   319→   319→
+   320→   320→      {/* Kitten detail dialog */}
+   321→   321→      <KittenDialog
+   322→   322→        kitten={selected}
+   323→   323→        onClose={() => setSelected(null)}
+   324→   324→        onBook={(k) => openBooking({ id: k.id, name: k.name })}
+   325→   325→      />
+   326→   326→    </section>
+   327→   327→  );
+   328→   328→}
+   329→   329→
+   330→   330→function FilterGroup({
+   331→   331→  label,
+   332→   332→  children,
+   333→   333→  highlight,
+   334→   334→}: {
+   335→   335→  label: string;
+   336→   336→  children: React.ReactNode;
+   337→   337→  highlight?: boolean;
+   338→   338→}) {
+   339→   339→  return (
+   340→   340→    <div>
+   341→   341→      <div className="flex items-center gap-1.5 mb-2">
+   342→   342→        <p className={`text-xs uppercase tracking-wide font-medium ${highlight ? "text-accent" : "text-muted-foreground"}`}>
+   343→   343→          {label}
+   344→   344→        </p>
+   345→   345→        {highlight && (
+   346→   346→          <span className="text-[10px] bg-accent/10 text-accent px-1.5 py-0.5 rounded-full">
+   347→   347→            уникально
+   348→   348→          </span>
+   349→   349→        )}
+   350→   350→      </div>
+   351→   351→      {children}
+   352→   352→    </div>
+   353→   353→  );
+   354→   354→}
+   355→   355→
+   356→   356→function FilterChip({
+   357→   357→  active,
+   358→   358→  onClick,
+   359→   359→  children,
+   360→   360→}: {
+   361→   361→  active: boolean;
+   362→   362→  onClick: () => void;
+   363→   363→  children: React.ReactNode;
+   364→   364→}) {
+   365→   365→  return (
+   366→   366→    <button
+   367→   367→      type="button"
+   368→   368→      onClick={onClick}
+   369→   369→      className={`inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium transition-all border ${
+   370→   370→        active
+   371→   371→          ? "bg-primary text-primary-foreground border-primary shadow-sm"
+   372→   372→          : "bg-background text-muted-foreground border-border hover:border-primary/40 hover:text-foreground"
+   373→   373→      }`}
+   374→   374→    >
+   375→   375→      {children}
+   376→   376→    </button>
+   377→   377→  );
+   378→   378→}
+   379→   379→
+   380→   380→function KittenCard({
+   381→   381→  kitten,
+   382→   382→  onSelect,
+   383→   383→  onBook,
+   384→   384→}: {
+   385→   385→  kitten: Kitten;
+   386→   386→  onSelect: () => void;
+   387→   387→  onBook: () => void;
+   388→   388→}) {
+   389→   389→  const PersonalityIcon = PERSONALITY_ICON[kitten.personality];
+   390→   390→  const gender = GENDER_LABEL[kitten.gender];
+   391→   391→  const GenderIcon = gender.icon;
+   392→   392→  const isAvailable = kitten.status === "available";
+   393→   393→  const isExpected = kitten.status === "expected";
+   394→   394→  const { isFavorite, toggle: toggleFav } = useFavorites();
+   395→   395→  const { isComparing, toggle: toggleCompare, canAdd, max } = useCompare();
+   396→   396→
+   397→   397→  const fav = isFavorite(kitten.id);
+   398→   398→  const comparing = isComparing(kitten.id);
+   399→   399→
+   400→   400→  const handleFav = (e: React.MouseEvent) => {
+   401→   401→    e.stopPropagation();
+   402→   402→    toggleFav(kitten.id);
+   403→   403→    toast(fav ? "Убрано из избранного" : "Добавлено в избранное", {
+   404→   404→      description: fav ? undefined : `${kitten.name} теперь в вашем списке.`,
+   405→   405→    });
+   406→   406→  };
+   407→   407→
+   408→   408→  const handleCompare = (e: React.MouseEvent) => {
+   409→   409→    e.stopPropagation();
+   410→   410→    if (!comparing && !canAdd) {
+   411→   411→      toast.warning(`Можно сравнить максимум ${max} котят`, {
+   412→   412→        description: "Уберите одного, чтобы добавить другого.",
+   413→   413→      });
+   414→   414→      return;
+   415→   415→    }
+   416→   416→    toggleCompare(kitten.id);
+   417→   417→    toast(comparing ? "Убрано из сравнения" : "Добавлено к сравнению", {
+   418→   418→      description: comparing ? undefined : `${kitten.name} в списке для сравнения.`,
+   419→   419→    });
+   420→   420→  };
+   421→   421→
+   422→   422→  return (
+   423→   423→    <SpotlightCard className="rounded-2xl ring-1 ring-border h-full">
+   424→   424→    <Card className="group overflow-hidden border-0 bg-card hover:shadow-lg transition-all duration-300 flex flex-col h-full">
+   425→   425→      <div
+   426→   426→        className="relative aspect-[4/3] overflow-hidden cursor-pointer"
+   427→   427→        onClick={onSelect}
+   428→   428→      >
+   429→   429→        <Image
+   430→   430→          src={kitten.imageUrl}
+   431→   431→          alt={`${kitten.name} — ${kitten.colorLabel}`}
+   432→   432→          fill
+   433→   433→          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+   434→   434→          className="object-cover transition-transform duration-500 group-hover:scale-105"
+   435→   435→        />
+   436→   436→        <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
+   437→   437→
+   438→   438→        {/* Action buttons (top-right): favorite + compare */}
+   439→   439→        <div className="absolute top-2.5 right-2.5 flex flex-col gap-1.5 z-10">
+   440→   440→          <button
+   441→   441→            type="button"
+   442→   442→            onClick={handleFav}
+   443→   443→            aria-label={fav ? "Убрать из избранного" : "Добавить в избранное"}
+   444→   444→            aria-pressed={fav}
+   445→   445→            className="flex h-8 w-8 items-center justify-center rounded-full bg-background/90 backdrop-blur-sm border border-border text-foreground hover:bg-background hover:scale-110 transition-all shadow-sm"
+   446→   446→          >
+   447→   447→            <Heart
+   448→   448→              className={`h-4 w-4 transition-all ${
+   449→   449→                fav ? "fill-accent text-accent scale-110" : "text-foreground"
+   450→   450→              }`}
+   451→   451→            />
+   452→   452→          </button>
+   453→   453→          <button
+   454→   454→            type="button"
+   455→   455→            onClick={handleCompare}
+   456→   456→            aria-label={comparing ? "Убрать из сравнения" : "Добавить к сравнению"}
+   457→   457→            aria-pressed={comparing}
+   458→   458→            className={`flex h-8 w-8 items-center justify-center rounded-full backdrop-blur-sm border transition-all shadow-sm ${
+   459→   459→              comparing
+   460→   460→                ? "bg-secondary text-secondary-foreground border-secondary scale-110"
+   461→   461→                : "bg-background/90 border-border text-foreground hover:bg-background hover:scale-110"
+   462→   462→            }`}
+   463→   463→          >
+   464→   464→            <GitCompare className="h-4 w-4" />
+   465→   465→          </button>
+   466→   466→        </div>
+   467→   467→
+   468→   468→        {/* Personality badge (top-left) */}
+   469→   469→        <span className="absolute top-3 left-3 inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-background/90 text-foreground backdrop-blur-sm border border-border">
+   470→   470→          <PersonalityIcon className="h-3 w-3 text-accent" />
+   471→   471→          {kitten.personalityLabel}
+   472→   472→        </span>
+   473→   473→
+   474→   474→        {/* Name + price on image */}
+   475→   475→        <div className="absolute bottom-0 left-0 right-0 p-3 flex items-end justify-between">
+   476→   476→          <div className="text-background">
+   477→   477→            <h4 className="font-serif text-xl font-semibold leading-tight">{kitten.name}</h4>
+   478→   478→            <p className="text-xs text-background/80">{kitten.colorLabel}</p>
+   479→   479→          </div>
+   480→   480→          <div className="text-background text-right">
+   481→   481→            <p className="font-serif text-lg font-semibold leading-tight">
+   482→   482→              {kitten.price.toLocaleString("ru-RU")} ₽
+   483→   483→            </p>
+   484→   484→          </div>
+   485→   485→        </div>
+   486→   486→      </div>
+   487→   487→
+   488→   488→      <CardContent className="p-4 flex-1 flex flex-col gap-3">
+   489→   489→        {/* Meta row */}
+   490→   490→        <div className="flex items-center gap-3 flex-wrap text-xs text-muted-foreground">
+   491→   491→          <span className="inline-flex items-center gap-1">
+   492→   492→            <GenderIcon className="h-3.5 w-3.5" />
+   493→   493→            {gender.label}
+   494→   494→          </span>
+   495→   495→          <span className="inline-flex items-center gap-1">
+   496→   496→            <CalendarDays className="h-3.5 w-3.5" />
+   497→   497→            {formatAge(kitten.birthDate)}
+   498→   498→          </span>
+   499→   499→          {kitten.vaccinated && (
+   500→   500→            <span className="inline-flex items-center gap-1 text-primary">
+   501→   501→              <Syringe className="h-3.5 w-3.5" />
+   502→   502→              Привит
+   503→   503→            </span>
+   504→   504→          )}
+   505→   505→        </div>
+   506→   506→
+   507→   507→        <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed flex-1">
+   508→   508→          {kitten.description}
+   509→   509→        </p>
+   510→   510→
+   511→   511→        {/* Parents mini */}
+   512→   512→        {kitten.litter && (kitten.litter.father || kitten.litter.mother) && (
+   513→   513→          <div className="flex items-center gap-1.5 text-xs text-muted-foreground bg-muted/50 rounded-md px-2.5 py-1.5">
+   514→   514→            <Users className="h-3.5 w-3.5 shrink-0" />
+   515→   515→            <span className="truncate">
+   516→   516→              Родители: {kitten.litter.father?.name ?? "—"} × {kitten.litter.mother?.name ?? "—"}
+   517→   517→            </span>
+   518→   518→          </div>
+   519→   519→        )}
+   520→   520→      </CardContent>
+   521→   521→
+   522→   522→      <CardFooter className="p-4 pt-0 gap-2">
+   523→   523→        <Button
+   524→   524→          variant="ghost"
+   525→   525→          size="sm"
+   526→   526→          onClick={onSelect}
+   527→   527→          className="flex-1 text-muted-foreground hover:text-foreground"
+   528→   528→        >
+   529→   529→          Подробнее
+   530→   530→          <ChevronRight className="h-4 w-4 ml-1" />
+   531→   531→        </Button>
+   532→   532→        <Button
+   533→   533→          size="sm"
+   534→   534→          onClick={onBook}
+   535→   535→          disabled={kitten.status === "adopted"}
+   536→   536→          className="flex-1 bg-accent text-accent-foreground hover:bg-accent/90 disabled:opacity-50"
+   537→   537→        >
+   538→   538→          {isExpected ? "Лист ожидания" : isAvailable ? "Забронировать" : "Узнать"}
+   539→   539→        </Button>
+   540→   540→      </CardFooter>
+   541→   541→    </Card>
+   542→   542→    </SpotlightCard>
+   543→   543→  );
+   544→   544→}
+   545→   545→
+   546→   546→function KittenDialog({
+   547→   547→  kitten,
+   548→   548→  onClose,
+   549→   549→  onBook,
+   550→   550→}: {
+   551→   551→  kitten: Kitten | null;
+   552→   552→  onClose: () => void;
+   553→   553→  onBook: (k: Kitten) => void;
+   554→   554→}) {
+   555→   555→  return (
+   556→   556→    <Dialog open={!!kitten} onOpenChange={(o) => !o && onClose()}>
+   557→   557→      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto custom-scroll bg-background p-0">
+   558→   558→        {kitten && (
+   559→   559→          <KittenDialogContent
+   560→   560→            // Remount on kitten change → gallery state resets to 0 naturally
+   561→   561→            key={kitten.id}
+   562→   562→            kitten={kitten}
+   563→   563→            onClose={onClose}
+   564→   564→            onBook={onBook}
+   565→   565→          />
+   566→   566→        )}
+   567→   567→      </DialogContent>
+   568→   568→    </Dialog>
+   569→   569→  );
+   570→   570→}
+   571→   571→
+   572→   572→function KittenDialogContent({
+   573→   573→  kitten,
+   574→   574→  onBook,
+   575→   575→}: {
+   576→   576→  kitten: Kitten;
+   577→   577→  onClose: () => void;
+   578→   578→  onBook: (k: Kitten) => void;
+   579→   579→}) {
+   580→   580→  const [activeImg, setActiveImg] = useState(0);
+   581→   581→
+   582→   582→  // Build gallery: main kitten image + parent images (as "family" angles)
+   583→   583→  const gallery: { src: string; alt: string }[] = [
+   584→   584→    { src: kitten.imageUrl, alt: kitten.name },
+   585→   585→    ...(kitten.litter?.father
+   586→   586→      ? [{ src: kitten.litter.father.imageUrl, alt: `Отец — ${kitten.litter.father.name}` }]
+   587→   587→      : []),
+   588→   588→    ...(kitten.litter?.mother
+   589→   589→      ? [{ src: kitten.litter.mother.imageUrl, alt: `Мать — ${kitten.litter.mother.name}` }]
+   590→   590→      : []),
+   591→   591→  ];
+   592→   592→
+   593→   593→  const PersonalityIcon = PERSONALITY_ICON[kitten.personality];
+   594→   594→  const gender = GENDER_LABEL[kitten.gender];
+   595→   595→  const GenderIcon = gender.icon;
+   596→   596→
+   597→   597→  return (
+   598→   598→    <>
+   599→   599→        <DialogHeader className="sr-only">
+   600→   600→          <DialogTitle>{kitten.name} — карточка котёнка</DialogTitle>
+   601→   601→          <DialogDescription>
+   602→   602→            Подробная информация о котёнке, характере, родителях и условиях.
+   603→   603→          </DialogDescription>
+   604→   604→        </DialogHeader>
+   605→   605→
+   606→   606→        <div className="grid sm:grid-cols-2">
+   607→   607→          <div className="relative flex flex-col">
+   608→   608→            <div className="relative aspect-square sm:aspect-auto sm:min-h-[420px]">
+   609→   609→              <Image
+   610→   610→                src={gallery[activeImg]?.src ?? kitten.imageUrl}
+   611→   611→                alt={gallery[activeImg]?.alt ?? kitten.name}
+   612→   612→                fill
+   613→   613→                sizes="(max-width: 640px) 100vw, 50vw"
+   614→   614→                className="object-cover transition-opacity duration-300"
+   615→   615→                key={activeImg}
+   616→   616→              />
+   617→   617→              <span
+   618→   618→                className={`absolute top-3 right-3 px-3 py-1 rounded-full text-xs font-medium ${STATUS_STYLES[kitten.status]}`}
+   619→   619→              >
+   620→   620→                {kitten.statusLabel}
+   621→   621→              </span>
+   622→   622→            </div>
+   623→   623→            {/* Thumbnails */}
+   624→   624→            {gallery.length > 1 && (
+   625→   625→              <div className="flex gap-2 p-3 overflow-x-auto custom-scroll">
+   626→   626→                {gallery.map((img, i) => (
+   627→   627→                  <button
+   628→   628→                    key={i}
+   629→   629→                    type="button"
+   630→   630→                    onClick={() => setActiveImg(i)}
+   631→   631→                    aria-label={`Фото ${i + 1}: ${img.alt}`}
+   632→   632→                    className={`relative h-14 w-14 shrink-0 rounded-lg overflow-hidden ring-2 transition-all ${
+   633→   633→                      activeImg === i
+   634→   634→                        ? "ring-primary scale-105"
+   635→   635→                        : "ring-border opacity-70 hover:opacity-100"
+   636→   636→                    }`}
+   637→   637→                  >
+   638→   638→                    <Image
+   639→   639→                      src={img.src}
+   640→   640→                      alt={img.alt}
+   641→   641→                      fill
+   642→   642→                      sizes="56px"
+   643→   643→                      className="object-cover"
+   644→   644→                    />
+   645→   645→                  </button>
+   646→   646→                ))}
+   647→   647→              </div>
+   648→   648→            )}
+   649→   649→          </div>
+   650→   650→
+   651→   651→          <div className="p-6 sm:p-8 flex flex-col gap-4 overflow-y-auto custom-scroll max-h-[60vh] sm:max-h-[90vh]">
+   652→   652→            <div>
+   653→   653→              <div className="flex items-center gap-2 mb-2 flex-wrap">
+   654→   654→                <Badge className="bg-accent/10 text-accent gap-1">
+   655→   655→                  <PersonalityIcon className="h-3 w-3" />
+   656→   656→                  {kitten.personalityLabel}
+   657→   657→                </Badge>
+   658→   658→                <Badge variant="secondary" className="bg-secondary/15">
+   659→   659→                  {kitten.colorLabel}
+   660→   660→                </Badge>
+   661→   661→                <Badge variant="outline" className="gap-1">
+   662→   662→                  <GenderIcon className="h-3 w-3" />
+   663→   663→                  {gender.label}
+   664→   664→                </Badge>
+   665→   665→              </div>
+   666→   666→              <h3 className="font-serif text-3xl font-semibold text-foreground">
+   667→   667→                {kitten.name}
+   668→   668→              </h3>
+   669→   669→              <p className="text-2xl font-serif font-semibold text-primary mt-1">
+   670→   670→                {kitten.price.toLocaleString("ru-RU")} ₽
+   671→   671→              </p>
+   672→   672→            </div>
+   673→   673→
+   674→   674→            {/* Personality description */}
+   675→   675→            <div className="p-3 rounded-lg bg-accent/5 border border-accent/20">
+   676→   676→              <p className="text-xs uppercase tracking-wide text-accent mb-1 flex items-center gap-1.5">
+   677→   677→                <PersonalityIcon className="h-3.5 w-3.5" />
+   678→   678→                Что значит «{kitten.personalityLabel.toLowerCase()}»
+   679→   679→              </p>
+   680→   680→              <p className="text-sm text-foreground/90 leading-relaxed">
+   681→   681→                {PERSONALITY_DESCRIPTIONS[kitten.personality]}
+   682→   682→              </p>
+   683→   683→            </div>
+   684→   684→
+   685→   685→            <p className="text-foreground/90 leading-relaxed">{kitten.description}</p>
+   686→   686→
+   687→   687→            {/* Meta grid */}
+   688→   688→            <div className="grid grid-cols-2 gap-2 text-sm">
+   689→   689→              <MetaItem icon={CalendarDays} label="Возраст" value={formatAge(kitten.birthDate)} />
+   690→   690→              <MetaItem icon={GenderIcon} label="Пол" value={gender.label} />
+   691→   691→              <MetaItem icon={Syringe} label="Прививки" value={kitten.vaccinated ? "Готовы" : "В процессе"} />
+   692→   692→              <MetaItem icon={FileCheck} label="Документы" value={kitten.documented ? "Метрика" : "—"} />
+   693→   693→            </div>
+   694→   694→
+   695→   695→            {/* Parents */}
+   696→   696→            {kitten.litter && (kitten.litter.father || kitten.litter.mother) && (
+   697→   697→              <div className="border-t border-border pt-4">
+   698→   698→                <p className="text-xs uppercase tracking-wide text-muted-foreground mb-2 flex items-center gap-1.5">
+   699→   699→                  <Dna className="h-3.5 w-3.5" />
+   700→   700→                  Родители — проверенные производители
+   701→   701→                </p>
+   702→   702→                <div className="flex gap-2">
+   703→   703→                  {kitten.litter.father && (
+   704→   704→                    <ParentTag label="Отец" name={kitten.litter.father.name} color={kitten.litter.father.colorLabel} />
+   705→   705→                  )}
+   706→   706→                  {kitten.litter.mother && (
+   707→   707→                    <ParentTag label="Мать" name={kitten.litter.mother.name} color={kitten.litter.mother.colorLabel} />
+   708→   708→                  )}
+   709→   709→                </div>
+   710→   710→                <p className="text-xs text-muted-foreground mt-2 leading-relaxed">
+   711→   711→                  Оба родителя прошли генетические тесты HCM, PKDef, SMA — все чистые (N/N).
+   712→   712→                </p>
+   713→   713→              </div>
+   714→   714→            )}
+   715→   715→
+   716→   716→            <Button
+   717→   717→              onClick={() => {
+   718→   718→                onBook(kitten);
+   719→   719→                onClose();
+   720→   720→              }}
+   721→   721→              disabled={kitten.status === "adopted"}
+   722→   722→              className="w-full bg-accent text-accent-foreground hover:bg-accent/90 h-12 text-base mt-2"
+   723→   723→            >
+   724→   724→              {kitten.status === "expected"
+   725→   725→                ? "Записаться в лист ожидания"
+   726→   726→                : kitten.status === "available"
+   727→   727→                ? "Забронировать этого котёнка"
+   728→   728→                : "Узнать о наличии"}
+   729→   729→            </Button>
+   730→   730→          </div>
+   731→   731→        </div>
+   732→   732→    </>
+   733→   733→  );
+   734→   734→}
+   735→   735→
+   736→   736→function MetaItem({
+   737→   737→  icon: Icon,
+   738→   738→  label,
+   739→   739→  value,
+   740→   740→}: {
+   741→   741→  icon: typeof Moon;
+   742→   742→  label: string;
+   743→   743→  value: string;
+   744→   744→}) {
+   745→   745→  return (
+   746→   746→    <div className="flex items-center gap-2 p-2.5 rounded-lg bg-muted/50">
+   747→   747→      <Icon className="h-4 w-4 text-primary shrink-0" />
+   748→   748→      <div className="min-w-0">
+   749→   749→        <p className="text-[11px] text-muted-foreground leading-tight">{label}</p>
+   750→   750→        <p className="text-sm font-medium text-foreground truncate">{value}</p>
+   751→   751→      </div>
+   752→   752→    </div>
+   753→   753→  );
+   754→   754→}
+   755→   755→
+   756→   756→function ParentTag({ label, name, color }: { label: string; name: string; color: string }) {
+   757→   757→  return (
+   758→   758→    <div className="flex-1 rounded-lg bg-muted/60 p-2.5">
+   759→   759→      <p className="text-[11px] text-muted-foreground">{label}</p>
+   760→   760→      <p className="text-sm font-semibold text-foreground">{name}</p>
+   761→   761→      <p className="text-[11px] text-muted-foreground">{color}</p>
+   762→   762→    </div>
+   763→   763→  );
+   764→   764→}
+   765→   765→
+   766→   766→function formatAge(iso: string): string {
+   767→   767→  try {
+   768→   768→    const birth = new Date(iso);
+   769→   769→    const now = new Date();
+   770→   770→    const months =
+   771→   771→      (now.getFullYear() - birth.getFullYear()) * 12 +
+   772→   772→      (now.getMonth() - birth.getMonth());
+   773→   773→    if (months <= 0) return "новорождённый";
+   774→   774→    if (months < 12) return `${months} мес.`;
+   775→   775→    const years = Math.floor(months / 12);
+   776→   776→    const remMonths = months % 12;
+   777→   777→    return remMonths === 0
+   778→   778→      ? `${years} ${years === 1 ? "год" : "года"}`
+   779→   779→      : `${years} г. ${remMonths} мес.`;
+   780→   780→  } catch {
+   781→   781→    return "—";
+   782→   782→  }
+   783→   783→}
+   784→   784→

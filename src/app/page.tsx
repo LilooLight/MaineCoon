@@ -8,6 +8,7 @@ import { TrustMarquee } from "@/components/cattery/trust-marquee";
 import { About } from "@/components/cattery/about";
 import { Producers } from "@/components/cattery/producers";
 import { ShowChampions } from "@/components/cattery/show-champions";
+import { PersonalityGuide } from "@/components/cattery/personality-guide";
 import { KittensCatalog } from "@/components/cattery/kittens-catalog";
 import { PersonalityQuiz } from "@/components/cattery/personality-quiz";
 import { BookingProcess } from "@/components/cattery/booking-process";
@@ -37,6 +38,7 @@ export default function Home() {
             <About />
             <Producers />
             <ShowChampions />
+            <PersonalityGuide />
             <PersonalityQuiz />
             <KittensCatalog />
             <ExpectedCountdown />

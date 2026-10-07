@@ -13,6 +13,7 @@ import {
   HandHeart,
   Phone,
 } from "lucide-react";
+import { BLUR_DATA_URLS } from "@/lib/blur";
 
 const VALUES = [
   {
@@ -62,6 +63,8 @@ export function BreederIntro() {
                 fill
                 sizes="(max-width: 1024px) 100vw, 50vw"
                 className="object-cover"
+                placeholder="blur"
+                blurDataURL={BLUR_DATA_URLS.muted}
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
               {/* Floating signature card */}

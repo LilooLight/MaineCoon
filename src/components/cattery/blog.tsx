@@ -10,6 +10,7 @@ import { BookOpen, Clock, ArrowRight } from "lucide-react";
 import type { BlogPost } from "@/lib/types/cattery";
 import { Reveal } from "./reveal";
 import { useBooking } from "./booking-context";
+import { BLUR_DATA_URLS } from "@/lib/blur";
 
 const CATEGORY_COLORS: Record<string, string> = {
   "Здоровье": "bg-primary/10 text-primary",
@@ -78,6 +79,8 @@ export function Blog() {
                         fill
                         sizes="(max-width: 1024px) 100vw, 50vw"
                         className="object-cover transition-transform duration-500 group-hover:scale-105"
+                        placeholder="blur"
+                        blurDataURL={BLUR_DATA_URLS.muted}
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
                       <div className="absolute bottom-0 left-0 right-0 p-6 text-background">
@@ -124,6 +127,8 @@ export function Blog() {
                           fill
                           sizes="128px"
                           className="object-cover transition-transform duration-500 group-hover:scale-105"
+                          placeholder="blur"
+                          blurDataURL={BLUR_DATA_URLS.muted}
                         />
                       </div>
                       <CardContent className="p-4 flex flex-col gap-1.5 flex-1">

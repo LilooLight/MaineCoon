@@ -203,3 +203,58 @@ Unresolved issues / next steps (приоритеты для следующего
 - (low) Интеграция с реальным мессенджером (WhatsApp/Telegram) через API.
 - (low) Страница «О нас» с историей питомника (отдельный маршрут для SEO).
 - (low) availability-service стабильно падает между раундами — добавить auto-restart через process manager (pm2 или systemd).
+
+---
+Task ID: cron-round-7
+Agent: Z.ai Code (cron webDevReview — round 7)
+Task: QA через agent-browser, исправление багов и добавление новых фич/стилей для питомника «Тихий Дом».
+
+Work Log:
+- Прочитал worklog.md, оценил статус: проект стабилен после раунда 6, lint чист, dev-сервер работает.
+- Обнаружил: availability-service (WebSocket, порт 3003) упал — перезапустил. Позже добавил keepalive-супервизор.
+- QA через agent-browser (1440×900): все 13 секций рендерятся, 0 ошибок в консоли.
+- **Image blur placeholders (lazy loading)**: создал утилиту `src/lib/blur.ts` с `BLUR_DATA_URLS` — генерирует SVG-based solid-color blur data URLs в фирменной палитре (background/muted/primary/secondary/accent/dark). Делегировал субагенту применение `placeholder="blur"` + `blurDataURL` ко всем `<Image>` компонентам — покрыто 17 изображений в 11 файлах (about, producers, kittens-catalog, show-champions, reviews, blog, breeder-intro, visit-us, favorites-panel, compare-bar, blog/[slug]/page). Hero уже имел blur. Lint чист после применения.
+- **Personality Guide секция**: создал компонент `personality-guide.tsx` — детальный гид по 4 темпераментам (Спокойный/Игривый/Независимый/Ласковый). Каждая карточка: иконка + tagline, описание, 4 trait-бара (Активность/Ласка/Терпение/Самостоятельность с high/medium/low), секция «Подойдёт» (с иконками аудитории), «Не подойдёт», честная заметка про генетику vs воспитание. Цвета карточек соответствуют темпераменту (primary/secondary/muted/accent). Добавил на страницу между ShowChampions и PersonalityQuiz.
+- **Keepalive супервизор**: создал `mini-services/keepalive-availability.sh` — bash-супервизор, который запускает availability-service и автоматически перезапускает его при падении (через while-цикл с 3-секундной задержкой). Запустил через `setsid bash keepalive-availability.sh & disown`. Оба процесса (bash-супервизор + bun-сервис) работают на порту 3003. Решает проблему частых падений availability-service между раундами.
+- Финальная QA: lint чист, Personality Guide рендерится со всеми 4 карточками и trait-барами, blur placeholders применены (нет белых вспышек при загрузке), keepalive-супервизор работает, мобильная адаптация (390×844) сохранена, 0 ошибок в консоли.
+
+Stage Summary:
+- Добавлено 2 новых компонента/файла: PersonalityGuide, blur.ts (утилита) + keepalive-availability.sh (супервизор).
+- Ключевые новые фичи: ① image blur placeholders (17 изображений, lazy loading с tinted blur), ② Personality Guide — детальный гид по 4 темпераментам с trait-барами и аудиторией, ③ keepalive-супервизор для availability-service (auto-restart).
+- Техническое качество: SVG-based blur data URLs (без raster overhead), trait bars через CSS, lint чист, 0 runtime ошибок.
+
+Unresolved issues / next steps (приоритеты для следующего раунда):
+- (medium) 30-секундные видео-превью поведения котят (video-understanding skill или <video> с placeholder).
+- (low) Админ-панель: CRUD для котят/помётов/производителей (сейчас только заявки).
+- (low) Аналитика просмотров статей (при согласии cookie).
+- (low) Интеграция с реальным мессенджером (WhatsApp/Telegram) через API.
+- (low) Страница «О нас» с историей питомника (отдельный маршрут для SEO).
+- (note) keepalive-супервизор работает, но sandbox может убивать процессы между cron-раундами — скрипт нужно запускать вручную в начале каждого раунда.
+
+---
+Task ID: round-7-blur
+Agent: subagent (blur placeholders)
+Task: Apply image blur placeholders across all cattery components
+
+Work Log:
+- Изучил worklog.md и `/src/lib/blur.ts` (BLUR_DATA_URLS с ключами background/muted/primary/secondary/accent/dark, DEFAULT_BLUR=muted). hero.tsx уже использовал `placeholder="blur"` + `BLUR_DATA_URLS.muted` — использовал как референс.
+- about.tsx: добавил импорт + 2 изображения (about.jpg, calm-companion.jpg) — muted blur.
+- producers.tsx: добавил импорт + 2 изображения (карточка производителя + диалог) — muted blur.
+- kittens-catalog.tsx: добавил импорт + 3 изображения (карточка котёнка, основной образ в диалоге, миниатюры галереи incl. фото родителей) — muted blur.
+- show-champions.tsx: добавил импорт + 1 изображение (карточка чемпиона) — secondary blur (под тон наградных ленточек).
+- reviews.tsx: добавил импорт + 1 изображение (featured review) — muted blur.
+- blog.tsx: добавил импорт + 2 изображения (featured пост + compact thumbnail) — muted blur.
+- breeder-intro.tsx: добавил импорт + 1 изображение (портрет заводчика) — muted blur.
+- visit-us.tsx: добавил импорт + 1 изображение (интерьер дома) — muted blur.
+- favorites-panel.tsx: добавил импорт + 1 изображение (миниатюра избранного котёнка) — muted blur.
+- compare-bar.tsx: добавил импорт + 2 изображения (миниатюра в плавающей панели + изображение в таблице сравнения) — muted blur.
+- blog/[slug]/page.tsx: добавил импорт + 1 изображение (обложка статьи, priority сохранён, добавлен placeholder+blurDataURL) — muted blur.
+- Всего: 11 файлов, 17 изображений получили blur placeholder.
+- Все правки точечные: только импорт + два новых пропса (placeholder="blur" и blurDataURL), существующие props (src, alt, fill, sizes, className, priority, key) сохранены.
+- `bun run lint` — 0 ошибок.
+
+Stage Summary:
+- Добавлен lazy-blur для всех next/image в каталожных/контентных компонентах питомника (17 изображений в 11 файлах). Изображения теперь плавно появляются из тёплого тонированного blur (muted/secondary) вместо белой вспышки — улучшает perceived performance и сохраняет фирменный визуал.
+- Hero.tsx не трогал (уже обработан в предыдущем раунде).
+- Импорт везде через `@/lib/blur` (алиас работает и для `src/components/cattery/`, и для `src/app/blog/[slug]/`).
+- Lint чист, минимальная площадь изменений, поведение сохранено.

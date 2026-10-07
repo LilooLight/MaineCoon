@@ -9,6 +9,7 @@ import { Reveal } from "./reveal";
 import { SpotlightCard } from "./spotlight-card";
 import { Award, Trophy, Star, Sparkles } from "lucide-react";
 import type { Producer } from "@/lib/types/cattery";
+import { BLUR_DATA_URLS } from "@/lib/blur";
 
 function safeParseTitles(raw: string): string[] {
   try {
@@ -90,6 +91,8 @@ export function ShowChampions() {
                           fill
                           sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                           className="object-cover"
+                          placeholder="blur"
+                          blurDataURL={BLUR_DATA_URLS.secondary}
                         />
                         <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
                         {/* Crown badge */}

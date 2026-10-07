@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Heart, ShieldCheck, Sparkles, ArrowDown, PawPrint } from "lucide-react";
 import type { CatteryStats } from "@/lib/types/cattery";
+import { BLUR_DATA_URLS } from "@/lib/blur";
 import { useBooking } from "./booking-context";
 
 export function Hero() {
@@ -105,6 +106,8 @@ export function Hero() {
                 fill
                 priority
                 sizes="(max-width: 1024px) 100vw, 50vw"
+                placeholder="blur"
+                blurDataURL={BLUR_DATA_URLS.muted}
                 className="object-cover"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />

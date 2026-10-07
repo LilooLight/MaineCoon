@@ -27,6 +27,7 @@ import {
 } from "lucide-react";
 import type { Producer, Personality } from "@/lib/types/cattery";
 import { PERSONALITY_DESCRIPTIONS } from "@/lib/types/cattery";
+import { BLUR_DATA_URLS } from "@/lib/blur";
 
 const PERSONALITY_BADGE: Record<Personality, { label: string; class: string }> = {
   calm: { label: "Спокойный", class: "bg-primary/10 text-primary" },
@@ -148,6 +149,8 @@ function ProducerGrid({
                 fill
                 sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                 className="object-cover transition-transform duration-500 group-hover:scale-105"
+                placeholder="blur"
+                blurDataURL={BLUR_DATA_URLS.muted}
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
               {/* Title badge */}
@@ -247,6 +250,8 @@ function ProducerDialog({
               fill
               sizes="(max-width: 640px) 100vw, 50vw"
               className="object-cover"
+              placeholder="blur"
+              blurDataURL={BLUR_DATA_URLS.muted}
             />
           </div>
 

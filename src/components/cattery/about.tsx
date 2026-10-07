@@ -4,6 +4,7 @@ import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Heart, ShieldCheck, Home, Users, Sparkles, MessageCircle } from "lucide-react";
+import { BLUR_DATA_URLS } from "@/lib/blur";
 
 const DIFFERENTIATORS = [
   {
@@ -67,6 +68,8 @@ export function About() {
               fill
               sizes="(max-width: 1024px) 100vw, 50vw"
               className="object-cover"
+              placeholder="blur"
+              blurDataURL={BLUR_DATA_URLS.muted}
             />
           </div>
 
@@ -145,6 +148,8 @@ export function About() {
                 fill
                 sizes="(max-width: 768px) 100vw, 40vw"
                 className="object-cover"
+                placeholder="blur"
+                blurDataURL={BLUR_DATA_URLS.muted}
               />
             </div>
             <div className="md:col-span-3 p-6 sm:p-10 bg-muted/40">

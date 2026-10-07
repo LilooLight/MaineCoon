@@ -15,6 +15,7 @@ import type { Kitten } from "@/lib/types/cattery";
 import { useCompare } from "./compare-context";
 import { useBooking } from "./booking-context";
 import { toast } from "sonner";
+import { BLUR_DATA_URLS } from "@/lib/blur";
 
 const PERSONALITY_LABEL_RU: Record<string, string> = {
   calm: "Спокойный",
@@ -110,6 +111,8 @@ export function CompareBar() {
                   fill
                   sizes="40px"
                   className="object-cover"
+                  placeholder="blur"
+                  blurDataURL={BLUR_DATA_URLS.muted}
                 />
                 <button
                   onClick={() => remove(k.id)}
@@ -220,6 +223,8 @@ function CompareDialog({
                           fill
                           sizes="140px"
                           className="object-cover"
+                          placeholder="blur"
+                          blurDataURL={BLUR_DATA_URLS.muted}
                         />
                         <button
                           onClick={() => onRemove(k.id)}

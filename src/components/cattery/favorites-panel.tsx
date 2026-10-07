@@ -16,6 +16,7 @@ import { Heart, Trash2, PawPrint, X, CalendarClock } from "lucide-react";
 import type { Kitten } from "@/lib/types/cattery";
 import { useFavorites } from "@/hooks/use-favorites";
 import { useBooking } from "./booking-context";
+import { BLUR_DATA_URLS } from "@/lib/blur";
 
 interface FavoritesPanelProps {
   open: boolean;
@@ -129,6 +130,8 @@ export function FavoritesPanel({ open, onOpenChange }: FavoritesPanelProps) {
                       fill
                       sizes="80px"
                       className="object-cover"
+                      placeholder="blur"
+                      blurDataURL={BLUR_DATA_URLS.muted}
                     />
                   </div>
                   <div className="flex-1 min-w-0 flex flex-col">

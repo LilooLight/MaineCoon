@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { BackToTop } from "@/components/cattery/back-to-top";
 import { Footer } from "@/components/cattery/footer";
+import { BLUR_DATA_URLS } from "@/lib/blur";
 import {
   ArrowLeft,
   Clock,
@@ -163,6 +164,8 @@ export default async function BlogArticlePage({ params }: PageProps) {
               priority
               sizes="(max-width: 768px) 100vw, 768px"
               className="object-cover"
+              placeholder="blur"
+              blurDataURL={BLUR_DATA_URLS.muted}
             />
           </div>
 

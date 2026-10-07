@@ -44,6 +44,7 @@ import { useFavorites } from "@/hooks/use-favorites";
 import { useCompare } from "./compare-context";
 import { LiveAvailability } from "./live-availability";
 import { toast } from "sonner";
+import { BLUR_DATA_URLS } from "@/lib/blur";
 
 const PERSONALITY_ICON: Record<Personality, typeof Moon> = {
   calm: Moon,
@@ -432,6 +433,8 @@ function KittenCard({
           fill
           sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
           className="object-cover transition-transform duration-500 group-hover:scale-105"
+          placeholder="blur"
+          blurDataURL={BLUR_DATA_URLS.muted}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
 
@@ -613,6 +616,8 @@ function KittenDialogContent({
                 sizes="(max-width: 640px) 100vw, 50vw"
                 className="object-cover transition-opacity duration-300"
                 key={activeImg}
+                placeholder="blur"
+                blurDataURL={BLUR_DATA_URLS.muted}
               />
               <span
                 className={`absolute top-3 right-3 px-3 py-1 rounded-full text-xs font-medium ${STATUS_STYLES[kitten.status]}`}
@@ -641,6 +646,8 @@ function KittenDialogContent({
                       fill
                       sizes="56px"
                       className="object-cover"
+                      placeholder="blur"
+                      blurDataURL={BLUR_DATA_URLS.muted}
                     />
                   </button>
                 ))}
