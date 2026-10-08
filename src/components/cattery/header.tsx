@@ -92,9 +92,17 @@ export function Header() {
                 ⌘K
               </kbd>
             </button>
+            {/* Call button — pinned in header on desktop */}
             <a
               href="tel:+74951234567"
-              className="flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors px-2"
+              className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-accent text-accent-foreground text-sm font-semibold hover:bg-accent/90 transition-colors h-9"
+            >
+              <Phone className="h-4 w-4" />
+              Позвонить
+            </a>
+            <a
+              href="tel:+74951234567"
+              className="hidden xl:flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors px-2"
             >
               <Phone className="h-4 w-4" />
               +7 495 123-45-67

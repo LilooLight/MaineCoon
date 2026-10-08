@@ -26,7 +26,7 @@ export async function GET() {
       litters,
       graduates,
       yearsWork: 6,
-      geneticTests: producers * 3, // 3 tests per producer, all open
+      geneticTests: producers, // now represents count of producers with pedigrees
     });
   } catch (error) {
     console.error("GET /api/stats error:", error);

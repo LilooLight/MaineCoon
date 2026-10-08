@@ -46,7 +46,7 @@ export function Footer() {
             </Link>
             <p className="text-sm text-background/70 leading-relaxed max-w-sm">
               Маленький семейный питомник мейн-кунов в Москве. Здоровые, спокойные
-              котята-компаньоны для семьи. Прозрачная генетика, честный подход,
+              котята-компаньоны для семьи. Родословные и документы, честный подход,
               поддержка на всю жизнь.
             </p>
 
@@ -120,7 +120,7 @@ export function Footer() {
             <ul className="flex flex-col gap-2 text-sm text-background/70">
               <li className="flex items-start gap-2">
                 <Heart className="h-4 w-4 text-accent shrink-0 mt-0.5" />
-                Гены открыты — HCM, PKDef, SMA
+                Документы открыты — родословные WCF
               </li>
               <li className="flex items-start gap-2">
                 <Heart className="h-4 w-4 text-accent shrink-0 mt-0.5" />

@@ -181,7 +181,7 @@ export function SearchPalette({ open, onOpenChange }: SearchPaletteProps) {
                 Введите минимум 2 символа для поиска
               </p>
               <div className="flex flex-wrap justify-center gap-1.5 mt-4">
-                {["спокойный", "серебряный", "Борис", "генетика", "уход"].map((s) => (
+                {["спокойный", "серебряный", "Север", "документы", "уход"].map((s) => (
                   <button
                     key={s}
                     onClick={() => setQuery(s)}

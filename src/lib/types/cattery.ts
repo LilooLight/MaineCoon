@@ -13,12 +13,8 @@ export interface Producer {
   imageUrl: string;
   bio: string;
   personality: Personality;
-  hasTitles: boolean;
-  titles: string; // JSON array
-  testHCM: string;
-  testPKDef: string;
-  testSMA: string;
-  testDate: string;
+  retired: boolean;
+  documents: string; // JSON array
   registry: string;
 }
 

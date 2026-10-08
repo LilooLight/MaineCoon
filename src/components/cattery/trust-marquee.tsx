@@ -4,7 +4,7 @@ import { Heart, ShieldCheck, Home, PawPrint, Star } from "lucide-react";
 
 const ITEMS = [
   { icon: Heart, text: "Пожизненная поддержка заводчика" },
-  { icon: ShieldCheck, text: "Гены HCM · PKDef · SMA — открыты" },
+  { icon: ShieldCheck, text: "Родословные WCF · документы открыты" },
   { icon: PawPrint, text: "2–3 помёта в год — не конвейер" },
   { icon: Home, text: "Социализация в домашних условиях" },
   { icon: Star, text: "20+ выпускников в любящих семьях" },

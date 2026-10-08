@@ -362,7 +362,7 @@ export default function ContactsPage() {
                     <Link href="/#blog" className="text-primary hover:underline">
                       блоге
                     </Link>
-                    . Там — про генетику, социализацию и уход. Если нет —
+                    . Там — про документы, социализацию и уход. Если нет —
                     пишите, ответим лично.
                   </p>
                 </CardContent>

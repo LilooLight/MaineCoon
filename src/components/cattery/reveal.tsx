@@ -43,7 +43,7 @@ export function Reveal({
       ref={ref as never}
       style={{ transitionDelay: visible ? `${delay}ms` : "0ms" }}
       className={cn(
-        "transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] will-change-transform",
+        "transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] will-change-transform min-w-0 overflow-hidden",
         visible
           ? "opacity-100 blur-0 translate-x-0 translate-y-0"
           : cn("opacity-0 blur-md", offset),

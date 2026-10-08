@@ -63,14 +63,14 @@
   --secondary: #C9A77C;
   --secondary-foreground: #2E2E2E;
 
-  /* Terracotta accent (CTA) */
-  --accent: #B86B4B;
+  /* Terracotta accent (CTA) — darkened for WCAG AA text contrast (4.5:1 on milk bg) */
+  --accent: #9E5538;
   --accent-foreground: #FBF8F3;
 
   --muted: #F2EDE4;
   --muted-foreground: #6B5E4F;
 
-  --destructive: #B86B4B;
+  --destructive: #9E5538;
   --destructive-foreground: #FBF8F3;
 
   --border: #E8E0D3;
@@ -135,6 +135,7 @@
   body {
     @apply bg-background text-foreground;
     font-family: var(--font-manrope), sans-serif;
+    overflow-x: hidden;
   }
   h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-cormorant), serif;

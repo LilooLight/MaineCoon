@@ -14,16 +14,13 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import {
-  Dna,
-  Award,
+  FileCheck,
   Calendar,
-  ShieldCheck,
   CheckCircle2,
   FileText,
   Mars,
   Venus,
   Heart,
-  Info,
 } from "lucide-react";
 import type { Producer, Personality } from "@/lib/types/cattery";
 import { PERSONALITY_DESCRIPTIONS } from "@/lib/types/cattery";
@@ -60,27 +57,16 @@ export function Producers() {
         {/* Header */}
         <div className="max-w-3xl mb-10 lg:mb-14">
           <Badge variant="outline" className="mb-4 border-primary/30 bg-primary/5 text-primary">
-            <Dna className="h-3.5 w-3.5 mr-1.5" />
-            Производители · открытая генетика
+            <FileCheck className="h-3.5 w-3.5 mr-1.5" />
+            Производители · открытые документы
           </Badge>
           <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-semibold text-foreground leading-tight mb-5">
-            6 производителей. Все тесты — на виду.
+            7 производителей. Каждый — с родословной и документами.
           </h2>
           <p className="text-lg text-muted-foreground leading-relaxed">
-            Из шести кошек и котов титулы есть лишь у трёх. Мы не скрываем это —
-            потому что титул не гарантирует здорового котёнка. Гарантируют чистые
-            тесты HCM, PKDef и SMA. Они — ниже, у каждого производителя.
-          </p>
-        </div>
-
-        {/* Honesty note */}
-        <div className="mb-10 flex items-start gap-3 p-4 rounded-xl bg-secondary/10 border border-secondary/20">
-          <Info className="h-5 w-5 text-secondary shrink-0 mt-0.5" />
-          <p className="text-sm text-secondary-foreground/90 leading-relaxed">
-            <strong>Честно:</strong> три производителя из шести не имеют
-            выставочных титулов. Зато все шестеро прошли генетическое
-            тестирование на три ключевых заболевания породы — и результаты у всех
-            чистые (N/N). Это важнее ленточек.
+            У каждого нашего кота и кошки есть родословная WCF, ветеринарный
+            паспорт и необходимые прививки. Документы показываем ДО решения о
+            бронировании — никаких «доверьтесь нам на слово».
           </p>
         </div>
 
@@ -106,7 +92,7 @@ export function Producers() {
         </Tabs>
       </div>
 
-      {/* Detail dialog with full genetic tests */}
+      {/* Detail dialog with documents */}
       <ProducerDialog producer={selected} onClose={() => setSelected(null)} />
     </section>
   );
@@ -135,7 +121,6 @@ function ProducerGrid({
     <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
       {producers.map((p) => {
         const personality = PERSONALITY_BADGE[p.personality];
-        const titles = safeParseTitles(p.titles);
         return (
           <Card
             key={p.id}
@@ -153,16 +138,11 @@ function ProducerGrid({
                 blurDataURL={BLUR_DATA_URLS.muted}
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
-              {/* Title badge */}
-              {p.hasTitles ? (
-                <div className="absolute top-3 left-3 flex items-center gap-1.5 bg-secondary/90 text-secondary-foreground px-2.5 py-1 rounded-full text-xs font-medium backdrop-blur-sm">
-                  <Award className="h-3 w-3" />
-                  {titles[0] ?? "Титулованный"}
-                </div>
-              ) : (
-                <div className="absolute top-3 left-3 flex items-center gap-1.5 bg-background/90 text-muted-foreground px-2.5 py-1 rounded-full text-xs font-medium backdrop-blur-sm border border-border">
+              {/* Retired badge */}
+              {p.retired && (
+                <div className="absolute top-3 left-3 flex items-center gap-1.5 bg-secondary/20 text-secondary-foreground px-2.5 py-1 rounded-full text-xs font-medium backdrop-blur-sm border border-secondary/30">
                   <Heart className="h-3 w-3" />
-                  Без титулов — честно
+                  На пенсии · талисман
                 </div>
               )}
               {/* Name + color */}
@@ -182,11 +162,12 @@ function ProducerGrid({
               <p className="text-sm text-muted-foreground line-clamp-2 mb-3 leading-relaxed">
                 {p.bio}
               </p>
-              {/* Mini genetic tests */}
+              {/* Pedigree badge */}
               <div className="flex items-center gap-2 flex-wrap">
-                <MiniTest label="HCM" value={p.testHCM} />
-                <MiniTest label="PKDef" value={p.testPKDef} />
-                <MiniTest label="SMA" value={p.testSMA} />
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-medium bg-primary/10 text-primary">
+                  <FileCheck className="h-3 w-3" />
+                  Родословная WCF
+                </span>
               </div>
               <Button
                 variant="ghost"
@@ -194,29 +175,13 @@ function ProducerGrid({
                 className="w-full mt-3 text-primary hover:bg-primary/10 hover:text-primary"
               >
                 <FileText className="h-4 w-4 mr-1.5" />
-                Смотреть тесты и родословную
+                Смотреть родословную и документы
               </Button>
             </CardContent>
           </Card>
         );
       })}
     </div>
-  );
-}
-
-function MiniTest({ label, value }: { label: string; value: string }) {
-  const isClean = value === "N/N";
-  return (
-    <span
-      className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-medium ${
-        isClean
-          ? "bg-primary/10 text-primary"
-          : "bg-accent/10 text-accent"
-      }`}
-    >
-      <CheckCircle2 className="h-3 w-3" />
-      {label}: {value}
-    </span>
   );
 }
 
@@ -228,8 +193,8 @@ function ProducerDialog({
   onClose: () => void;
 }) {
   if (!producer) return null;
-  const titles = safeParseTitles(producer.titles);
   const personality = PERSONALITY_BADGE[producer.personality];
+  const docs = safeParseDocuments(producer.documents);
 
   return (
     <Dialog open={!!producer} onOpenChange={(o) => !o && onClose()}>
@@ -237,7 +202,7 @@ function ProducerDialog({
         <DialogHeader className="sr-only">
           <DialogTitle>{producer.name} — карточка производителя</DialogTitle>
           <DialogDescription>
-            Полная информация о производителе, генетических тестах и родословной.
+            Полная информация о производителе, родословной и документах.
           </DialogDescription>
         </DialogHeader>
 
@@ -253,6 +218,12 @@ function ProducerDialog({
               placeholder="blur"
               blurDataURL={BLUR_DATA_URLS.muted}
             />
+            {producer.retired && (
+              <div className="absolute top-3 left-3 flex items-center gap-1.5 bg-secondary/90 text-secondary-foreground px-3 py-1 rounded-full text-xs font-semibold backdrop-blur-sm">
+                <Heart className="h-3 w-3" />
+                На пенсии · талисман
+              </div>
+            )}
           </div>
 
           {/* Content */}
@@ -265,23 +236,20 @@ function ProducerDialog({
                 <Badge variant="secondary" className="bg-secondary/15">
                   {producer.colorLabel}
                 </Badge>
-                {producer.hasTitles ? (
-                  <Badge className="bg-secondary text-secondary-foreground gap-1">
-                    <Award className="h-3 w-3" />
-                    Титулованный
-                  </Badge>
-                ) : (
-                  <Badge variant="outline" className="text-muted-foreground gap-1">
-                    <Heart className="h-3 w-3" />
-                    Без титулов
-                  </Badge>
-                )}
+                <Badge variant="outline" className="text-muted-foreground">
+                  {producer.role === "male" ? "Кот" : "Кошка"}
+                </Badge>
               </div>
               <h3 className="font-serif text-3xl font-semibold text-foreground">
                 {producer.name}
               </h3>
               <p className="text-sm text-muted-foreground mt-1">
-                {producer.role === "male" ? "Кот-производитель" : "Кошка-производительница"} · {producer.registry}
+                {producer.retired
+                  ? "Талисман питомника · на пенсии"
+                  : producer.role === "male"
+                  ? "Кот-производитель"
+                  : "Кошка-производительница"}{" "}
+                · {producer.registry}
               </p>
             </div>
 
@@ -302,42 +270,34 @@ function ProducerDialog({
               </p>
             </div>
 
-            {/* Titles */}
-            {titles.length > 0 && (
-              <div>
-                <p className="text-xs uppercase tracking-wide text-muted-foreground mb-2 flex items-center gap-1.5">
-                  <Award className="h-3.5 w-3.5" />
-                  Выставочные титулы
-                </p>
-                <div className="flex flex-wrap gap-2">
-                  {titles.map((t, i) => (
-                    <Badge key={i} variant="outline" className="bg-secondary/10 text-secondary-foreground">
-                      {t}
-                    </Badge>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Genetic tests — the key transparency */}
+            {/* Documents — replaces genetic tests */}
             <div className="border-t border-border pt-4">
               <div className="flex items-center gap-2 mb-3">
-                <ShieldCheck className="h-5 w-5 text-primary" />
+                <FileCheck className="h-5 w-5 text-primary" />
                 <h4 className="font-serif text-lg font-semibold text-foreground">
-                  Генетические тесты
+                  Документы
                 </h4>
-                <span className="text-xs text-muted-foreground ml-auto">
-                  от {producer.testDate}
-                </span>
               </div>
-              <div className="grid grid-cols-3 gap-2">
-                <FullTest label="HCM" value={producer.testHCM} desc="Гипертрофическая кардиомиопатия" />
-                <FullTest label="PKDef" value={producer.testPKDef} desc="Дефицит пируваткиназы" />
-                <FullTest label="SMA" value={producer.testSMA} desc="Спинальная мышечная атрофия" />
+              <div className="p-3 rounded-lg bg-primary/5 border border-primary/20 mb-3">
+                <p className="text-xs uppercase tracking-wide text-primary mb-1">
+                  Родословная
+                </p>
+                <p className="text-sm font-semibold text-foreground">
+                  {producer.registry}
+                </p>
               </div>
+              <ul className="space-y-2">
+                {docs.map((doc, i) => (
+                  <li key={i} className="flex items-start gap-2 text-sm text-foreground/90">
+                    <CheckCircle2 className="h-4 w-4 text-primary shrink-0 mt-0.5" />
+                    {doc}
+                  </li>
+                ))}
+              </ul>
               <p className="text-xs text-muted-foreground mt-3 leading-relaxed">
-                <CheckCircle2 className="h-3 w-3 inline mr-1 text-primary" />
-                Все тесты чистые (N/N) — производитель не носит мутаций и не передаст их котятам.
+                <FileText className="h-3 w-3 inline mr-1 text-primary" />
+                Все документы показываем до брони. Котёнок приезжает с метрикой,
+                ветеринарным паспортом и договором.
               </p>
             </div>
           </div>
@@ -347,22 +307,7 @@ function ProducerDialog({
   );
 }
 
-function FullTest({ label, value, desc }: { label: string; value: string; desc: string }) {
-  const isClean = value === "N/N";
-  return (
-    <div
-      className={`rounded-lg p-3 text-center border ${
-        isClean ? "border-primary/30 bg-primary/5" : "border-accent/30 bg-accent/5"
-      }`}
-    >
-      <p className="text-xs font-semibold text-foreground">{label}</p>
-      <p className="font-serif text-lg font-semibold text-primary mt-0.5">{value}</p>
-      <p className="text-[10px] text-muted-foreground leading-tight mt-1">{desc}</p>
-    </div>
-  );
-}
-
-function safeParseTitles(raw: string): string[] {
+function safeParseDocuments(raw: string): string[] {
   try {
     const parsed = JSON.parse(raw);
     return Array.isArray(parsed) ? parsed : [];

@@ -752,7 +752,7 @@ function KittenDialogContent({
                   )}
                 </div>
                 <p className="text-xs text-muted-foreground mt-2 leading-relaxed">
-                  Оба родителя прошли генетические тесты HCM, PKDef, SMA — все чистые (N/N).
+                  Оба родителя имеют родословные WCF и ветеринарные паспорта.
                 </p>
               </div>
             )}

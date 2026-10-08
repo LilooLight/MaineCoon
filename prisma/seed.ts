@@ -1,7 +1,7 @@
 import { db } from "../src/lib/db";
 
 async function main() {
-  console.log("🌱 Seeding cattery database...");
+  console.log("🌱 Seeding cattery database (v2 — no genetics, new producers)...");
 
   // Clean existing data
   await db.booking.deleteMany();
@@ -11,94 +11,129 @@ async function main() {
   await db.litter.deleteMany();
   await db.producer.deleteMany();
 
-  // ── 6 Producers (3 pairs) ──────────────────────────────────────────────
+  // ── 7 Producers (5 females + 2 males, Машук retired) ──────────────────
   const males = [
     {
-      name: "Борис",
-      role: "male",
-      color: "black",
-      colorLabel: "Чёрный",
-      birthDate: "2020-04-12",
-      imageUrl: "/images/producers/male-1-boris.jpg",
-      bio: "Спокойный, как скала. Любит спать у батареи и наблюдать за household с высоты подоконника. Отец трёх помётов — все котята унаследовали его уравновешенность.",
-      personality: "calm",
-      hasTitles: true,
-      titles: JSON.stringify(["Чемпион России", "Лучший кот года 2022 — региональный"]),
-      registry: "WCF RU-2020-0412-М",
-      testDate: "Март 2023",
-    },
-    {
-      name: "Ярослав",
+      name: "Север",
       role: "male",
       color: "tabby",
       colorLabel: "Дикий (табби)",
-      birthDate: "2021-06-03",
-      imageUrl: "/images/producers/male-2-yaroslav.jpg",
-      bio: "Дикий окрас и характер исследователя. Любит прогулки по квартире и «охоту» на солнечные пятна. Игрив, но без агрессии — идеален для семей с детьми.",
+      birthDate: "2021-05-18",
+      imageUrl: "/images/producers/sever.jpg",
+      bio: "Крупный дикий табби с выраженным типом породы. Спокойный, но активный — обожает интерактивные игрушки и прогулки по квартире. Отец двух помётов, передаёт котятам крепкую конституцию и уравновешенность.",
       personality: "playful",
-      hasTitles: true,
-      titles: JSON.stringify(["Гран-Чемпион WCF"]),
-      registry: "WCF RU-2021-0603-Я",
-      testDate: "Февраль 2024",
+      retired: false,
+      registry: "WCF RU-2021-0518-С",
+      documents: JSON.stringify([
+        "Родословная WCF (5 поколений)",
+        "Ветеринарный паспорт с прививками",
+        "Чипирование",
+      ]),
     },
     {
-      name: "Себастьян",
+      name: "Машук",
       role: "male",
-      color: "silver",
-      colorLabel: "Серебряный",
-      birthDate: "2022-01-20",
-      imageUrl: "/images/producers/male-3-sebastyan.jpg",
-      bio: "Молодой серебряный кот с выразительными зелёными глазами. Пока без выставочных титулов — мы честно это обозначаем. Зато обладает исключительной лаской к людям.",
-      personality: "affectionate",
-      hasTitles: false,
-      titles: JSON.stringify([]),
-      registry: "WCF RU-2022-0120-С",
-      testDate: "Январь 2024",
+      color: "black",
+      colorLabel: "Угольно-чёрный",
+      birthDate: "2018-03-10",
+      imageUrl: "/images/producers/mashuk.jpg",
+      bio: "Самый красивый и крупный кот питомника. Угольно-чёрный, с массивной головой и роскошным воротником. Сейчас на пенсии — талисман питомника. Каждый помёт растёт под его присмотром, он учит котят спокойствию и достоинству.",
+      personality: "calm",
+      retired: true,
+      registry: "WCF RU-2018-0310-М",
+      documents: JSON.stringify([
+        "Родословная WCF (5 поколений)",
+        "Ветеринарный паспорт с прививками",
+        "Чипирование",
+      ]),
     },
   ];
 
   const females = [
     {
-      name: "Мурка",
+      name: "Рысь",
       role: "female",
-      color: "black",
-      colorLabel: "Чёрный",
-      birthDate: "2020-09-08",
-      imageUrl: "/images/producers/female-1-murka.jpg",
-      bio: "Наша тихая мама. Вырастила два помёта, каждому котёнку уделяла внимание как собственному. Передаёт котятам спокойный нрав и крепкую конституцию.",
-      personality: "calm",
-      hasTitles: false,
-      titles: JSON.stringify([]),
-      registry: "WCF RU-2020-0908-М",
-      testDate: "Март 2023",
+      color: "silver",
+      colorLabel: "Серебряный",
+      birthDate: "2021-09-22",
+      imageUrl: "/images/producers/rys.jpg",
+      bio: "Серебряная красавица с зелёными глазами. Независимая, но преданная — любит быть рядом, но не навязывается. Отличная мать, уделяет каждому котёнку внимание.",
+      personality: "independent",
+      retired: false,
+      registry: "WCF RU-2021-0922-Р",
+      documents: JSON.stringify([
+        "Родословная WCF (5 поколений)",
+        "Ветеринарный паспорт с прививками",
+        "Чипирование",
+      ]),
     },
     {
-      name: "Лейла",
-      role: "female",
-      color: "silver-red",
-      colorLabel: "Серебряно-рыжий",
-      birthDate: "2021-11-15",
-      imageUrl: "/images/producers/female-2-leyla.jpg",
-      bio: "Серебряно-рыжая красавица с тёплым характером. Обожает, когда её расчёсывают, и мурчит так, что слышно через стену. Мама самого ласкового помёта.",
-      personality: "affectionate",
-      hasTitles: true,
-      titles: JSON.stringify(["Чемпион России"]),
-      registry: "WCF RU-2021-1115-Л",
-      testDate: "Февраль 2024",
-    },
-    {
-      name: "Злата",
+      name: "Диана",
       role: "female",
       color: "tabby",
       colorLabel: "Дикий (табби)",
-      birthDate: "2022-03-22",
-      imageUrl: "/images/producers/female-3-zlata.jpg",
-      bio: "Молодая дикая кошка с идеальным типом. Независима, но предана семье. Ещё не имела помётов — планируем первую вязку осенью.",
-      personality: "independent",
-      hasTitles: false,
-      titles: JSON.stringify([]),
-      registry: "WCF RU-2022-0322-З",
-      testDate: "Январь 2024",
+      birthDate: "2022-01-15",
+      imageUrl: "/images/producers/diana.jpg",
+      bio: "Дикая табби с тёплым характером. Обожает, когда её расчёсывают, и мурчит так, что слышно через стену. Ласковая и общительная — идеальна для семей с детьми.",
+      personality: "affectionate",
+      retired: false,
+      registry: "WCF RU-2022-0115-Д",
+      documents: JSON.stringify([
+        "Родословная WCF (5 поколений)",
+        "Ветеринарный паспорт с прививками",
+        "Чипирование",
+      ]),
+    },
+    {
+      name: "Дульсинея",
+      role: "female",
+      color: "silver-red",
+      colorLabel: "Серебряно-рыжий",
+      birthDate: "2022-06-03",
+      imageUrl: "/images/producers/dulcinea.jpg",
+      bio: "Серебряно-рыжая кошка с выразительными глазами. Спокойная и уравновешенная, передаёт котятам устойчивую психику. Любит спать у окна и наблюдать за улицей.",
+      personality: "calm",
+      retired: false,
+      registry: "WCF RU-2022-0603-Дц",
+      documents: JSON.stringify([
+        "Родословная WCF (5 поколений)",
+        "Ветеринарный паспорт с прививками",
+        "Чипирование",
+      ]),
+    },
+    {
+      name: "Матильда",
+      role: "female",
+      color: "black-smoke",
+      colorLabel: "Чёрный дымчатый",
+      birthDate: "2022-11-08",
+      imageUrl: "/images/producers/matilda.jpg",
+      bio: "Чёрная дымчатая кошка с медными глазами. Игривая и любопытная, обожает мячики и перья. Молодая, энергичная — планируем первую вязку осенью.",
+      personality: "playful",
+      retired: false,
+      registry: "WCF RU-2022-1108-Мт",
+      documents: JSON.stringify([
+        "Родословная WCF (5 поколений)",
+        "Ветеринарный паспорт с прививками",
+        "Чипирование",
+      ]),
+    },
+    {
+      name: "Чебурашка",
+      role: "female",
+      color: "black-tabby",
+      colorLabel: "Чёрный табби с белым",
+      birthDate: "2023-02-14",
+      imageUrl: "/images/producers/cheburashka.jpg",
+      bio: "Чёрная табби с белыми лапками — самая ласковая кошка питомника. Идёт на руки к кому угодно, мурчит при первом прикосновении. Молодая, готовится к первой вязке.",
+      personality: "affectionate",
+      retired: false,
+      registry: "WCF RU-2023-0214-Ч",
+      documents: JSON.stringify([
+        "Родословная WCF (5 поколений)",
+        "Ветеринарный паспорт с прививками",
+        "Чипирование",
+      ]),
     },
   ];
 
@@ -107,34 +142,34 @@ async function main() {
   for (const p of producerData) {
     const created = await db.producer.create({ data: p });
     producers[p.name] = created;
-    console.log(`  ✓ Producer: ${p.name} (${p.colorLabel})`);
+    console.log(`  ✓ Producer: ${p.name} (${p.colorLabel})${p.retired ? " [retired]" : ""}`);
   }
 
   // ── Litters (2-3 per year) ─────────────────────────────────────────────
   const litters = [
     {
       name: "Помёт «Лето 2024»",
-      fatherId: producers["Борис"].id,
-      motherId: producers["Лейла"].id,
+      fatherId: producers["Север"].id,
+      motherId: producers["Диана"].id,
       bornAt: new Date("2024-06-15"),
       expected: false,
-      notes: "4 котёнка: два серебряно-рыжих и два чёрных. Все социализированы в домашних условиях.",
+      notes: "4 котёнка: два диких табби и два серебряно-рыжих. Все социализированы в домашних условиях.",
     },
     {
       name: "Помёт «Зима 2024»",
-      fatherId: producers["Ярослав"].id,
-      motherId: producers["Мурка"].id,
+      fatherId: producers["Север"].id,
+      motherId: producers["Дульсинея"].id,
       bornAt: new Date("2024-12-02"),
       expected: false,
-      notes: "3 котёнка диких окрасов. Очень игривые, как папа.",
+      notes: "3 котёнка серебряных и серебряно-рыжих окрасов. Очень спокойные, как мама.",
     },
     {
-      name: "Помёт «Зима 2026» (ожидается)",
-      fatherId: producers["Себастьян"].id,
-      motherId: producers["Злата"].id,
-      bornAt: new Date("2026-12-15"),
+      name: "Помёт «Весна 2026» (ожидается)",
+      fatherId: producers["Север"].id,
+      motherId: producers["Рысь"].id,
+      bornAt: new Date("2026-05-20"),
       expected: true,
-      notes: "Ожидаем серебряных и серебряно-рыжих котят от Себастьяна и Златы. Запись в лист ожидания открыта.",
+      notes: "Ожидаем серебряных и диких табби котят от Севера и Рыси. Запись в лист ожидания открыта.",
     },
   ];
 
@@ -150,14 +185,14 @@ async function main() {
     // Лето 2024 litter
     {
       name: "Айсберг",
-      color: "silver-red",
-      colorLabel: "Серебряно-рыжий",
+      color: "silver",
+      colorLabel: "Серебряный",
       gender: "male",
       personality: "calm",
       personalityLabel: "Спокойный",
       litterId: litterMap["Помёт «Лето 2024»"],
       birthDate: new Date("2024-06-15"),
-      imageUrl: "/images/kittens/kitten-silver-red.jpg",
+      imageUrl: "/images/kittens/kitten-silver.jpg",
       status: "available",
       statusLabel: "Доступен",
       price: 65000,
@@ -184,35 +219,35 @@ async function main() {
     },
     {
       name: "Уголёк",
-      color: "black",
-      colorLabel: "Чёрный",
+      color: "tabby",
+      colorLabel: "Дикий (табби)",
       gender: "male",
       personality: "playful",
       personalityLabel: "Игривый",
       litterId: litterMap["Помёт «Лето 2024»"],
       birthDate: new Date("2024-06-15"),
-      imageUrl: "/images/kittens/kitten-black.jpg",
+      imageUrl: "/images/kittens/kitten-tabby.jpg",
       status: "reserved",
       statusLabel: "Забронирован",
       price: 60000,
-      description: "Игривый и любопытный чёрный котёнок. Обожает мячики и перья. Отличный компаньон для активного хозяина.",
+      description: "Игривый и любопытный дикий котёнок. Обожает мячики и перья. Отличный компаньон для активного хозяина.",
       vaccinated: true,
       documented: true,
     },
     {
       name: "Ночка",
-      color: "black",
-      colorLabel: "Чёрный",
+      color: "silver",
+      colorLabel: "Серебряный",
       gender: "female",
       personality: "independent",
       personalityLabel: "Независимый",
       litterId: litterMap["Помёт «Лето 2024»"],
       birthDate: new Date("2024-06-15"),
-      imageUrl: "/images/kittens/kitten-black.jpg",
+      imageUrl: "/images/kittens/kitten-silver.jpg",
       status: "available",
       statusLabel: "Доступна",
-      price: 58000,
-      description: "Независимая, но преданная. Любит быть рядом, но не навязывается. Идеальна для опытного кошатника, который ценит личное пространство.",
+      price: 62000,
+      description: "Независимая, но преданная. Любит быть рядом, но не навязывается. Идеальна для опытного кошатника.",
       vaccinated: true,
       documented: true,
     },
@@ -230,24 +265,24 @@ async function main() {
       status: "available",
       statusLabel: "Доступен",
       price: 62000,
-      description: "Дикий окрас, как у папы Ярослава. Энергичный исследователь квартиры. Подойдёт семье с детьми постарше.",
+      description: "Дикий окрас, как у папы Севера. Энергичный исследователь квартиры. Подойдёт семье с детьми постарше.",
       vaccinated: false,
       documented: true,
     },
     {
       name: "Тигра",
-      color: "tabby",
-      colorLabel: "Дикий (табби)",
+      color: "silver-red",
+      colorLabel: "Серебряно-рыжий",
       gender: "female",
       personality: "affectionate",
       personalityLabel: "Ласковый",
       litterId: litterMap["Помёт «Зима 2024»"],
       birthDate: new Date("2024-12-02"),
-      imageUrl: "/images/kittens/kitten-tabby.jpg",
+      imageUrl: "/images/kittens/kitten-silver-red.jpg",
       status: "available",
       statusLabel: "Доступна",
       price: 65000,
-      description: "Ласковая дикая девочка с контрастным рисунком. Любит, когда её носят на руках как младенца.",
+      description: "Ласковая серебряно-рыжая девочка с контрастным рисунком. Любит, когда её носят на руках как младенца.",
       vaccinated: false,
       documented: true,
     },
@@ -263,43 +298,43 @@ async function main() {
       imageUrl: "/images/kittens/kitten-silver.jpg",
       status: "available",
       statusLabel: "Доступна",
-      price: 72000,
-      description: "Серебряная девочка с зелёными глазами. Очень спокойная, наблюдает за всем с достоинством. Редкий окрас.",
+      price: 68000,
+      description: "Серебряная девочка с зелёными глазами. Очень спокойная, наблюдает за всем с достоинством.",
       vaccinated: false,
       documented: true,
     },
-    // Expected litter Spring 2025
+    // Expected litter Spring 2026
     {
-      name: "Котёнок из помёта «Зима 2026» #1",
+      name: "Котёнок из помёта «Весна 2026» #1",
       color: "silver",
       colorLabel: "Серебряный",
       gender: "male",
       personality: "calm",
       personalityLabel: "Спокойный",
-      litterId: litterMap["Помёт «Зима 2026» (ожидается)"],
-      birthDate: new Date("2026-12-15"),
+      litterId: litterMap["Помёт «Весна 2026» (ожидается)"],
+      birthDate: new Date("2026-05-20"),
       imageUrl: "/images/kittens/kitten-silver.jpg",
       status: "expected",
       statusLabel: "Ожидается",
-      price: 70000,
-      description: "Ожидаемый котёнок от Себастьяна и Златы. Серебряный окрас. Запись в лист ожидания.",
+      price: 65000,
+      description: "Ожидаемый котёнок от Севера и Рыси. Серебряный окрас. Запись в лист ожидания.",
       vaccinated: false,
       documented: true,
     },
     {
-      name: "Котёнок из помёта «Зима 2026» #2",
-      color: "silver-red",
-      colorLabel: "Серебряно-рыжий",
+      name: "Котёнок из помёта «Весна 2026» #2",
+      color: "tabby",
+      colorLabel: "Дикий (табби)",
       gender: "female",
-      personality: "affectionate",
-      personalityLabel: "Ласковый",
-      litterId: litterMap["Помёт «Зима 2026» (ожидается)"],
-      birthDate: new Date("2026-12-15"),
-      imageUrl: "/images/kittens/kitten-silver-red.jpg",
+      personality: "independent",
+      personalityLabel: "Независимый",
+      litterId: litterMap["Помёт «Весна 2026» (ожидается)"],
+      birthDate: new Date("2026-05-20"),
+      imageUrl: "/images/kittens/kitten-tabby.jpg",
       status: "expected",
       statusLabel: "Ожидается",
-      price: 72000,
-      description: "Ожидаемая серебряно-рыжая девочка. Запись в лист ожидания.",
+      price: 62000,
+      description: "Ожидаемая дикая табби девочка. Запись в лист ожидания.",
       vaccinated: false,
       documented: true,
     },
@@ -330,7 +365,7 @@ async function main() {
       kittenColor: "Чёрный",
       adoptedAt: "Зима 2023",
       rating: 5,
-      text: "Работаю из дома, нужен был компаньон, который рядом, но не навязчив. Симба ложится у монитора и спит, пока я работаю. Генетические тесты производителей — в открытом доступе, это редкость. Рекомендую всем, кто ценит честность.",
+      text: "Работаю из дома, нужен был компаньон, который рядом, но не навязчив. Симба ложится у монитора и спит, пока я работаю. Все документы котёнка были готовы заранее. Рекомендую всем, кто ценит честность.",
       imageUrl: "/images/graduates/grad-1.jpg",
       featured: true,
     },
@@ -341,7 +376,7 @@ async function main() {
       kittenColor: "Серебряный",
       adoptedAt: "Лето 2022",
       rating: 5,
-      text: "Третья моя кошка, и впервые — с полностью прозрачной генетикой. HCM, PKDef, SMA — всё проверено, всё доступно. Алисе уже 2,5 года, ни одного намёка на проблему. Это и есть честный подход к разведению.",
+      text: "Третья моя кошка. Алиса приехала со всеми документами — родословная, ветеринарный паспорт, метрика. Алисе уже 2,5 года, ни одного намёка на проблему. Это и есть честный подход к разведению.",
       imageUrl: "/images/graduates/grad-2.jpg",
       featured: true,
     },
@@ -352,7 +387,7 @@ async function main() {
       kittenColor: "Серебряно-рыжий",
       adoptedAt: "Весна 2024",
       rating: 5,
-      text: "Бронировали онлайн — это было неожиданно и удобно. Заводчик не торопил, дал подумать неделю. Маркиз приехал со всеми документами и прививками. Спокойный, ласковый, здоровый. Спасибо за честный подход.",
+      text: "Бронировали онлайн — это было неожиданно и удобно. Заводчик не торопил, дал подумать неделю. Маркиз приехал со всеми документами и прививками. Спокойный, ласковый, здоровый.",
       imageUrl: null,
       featured: false,
     },
@@ -363,7 +398,7 @@ async function main() {
       kittenColor: "Дикий (табби)",
       adoptedAt: "Лето 2024",
       rating: 5,
-      text: "Фильтр по характеру — гениальная вещь. Выбрала «независимый, но ласковый» и получила именно то, что хотела. Зося рядом, когда работаю, но не лезет на клавиатуру. Идеальный баланс.",
+      text: "Фильтр по характеру — гениальная вещь. Выбрала «независимый, но ласковый» и получила именно то, что хотела. Зося рядом, когда работаю, но не лезет на клавиатуру.",
       imageUrl: null,
       featured: false,
     },
@@ -371,10 +406,10 @@ async function main() {
       authorName: "Фёдор и Катя",
       authorRole: "Молодая пара, первый питомец",
       kittenName: "Бакс (выпускник 2024)",
-      kittenColor: "Чёрный",
+      kittenColor: "Дикий (табби)",
       adoptedAt: "Осень 2024",
       rating: 5,
-      text: "Первый раз брали кота, очень боялись. Заводчик провёл с нами час по видеосвязи, показал помёт, родителей, тесты. Бакс — здоровье и спокойствие. Через месяц написали — ответили в тот же день.",
+      text: "Первый раз брали кота, очень боялись. Заводчик провёл с нами час по видеосвязи, показал помёт, родителей, документы. Бакс — здоровье и спокойствие. Через месяц написали — ответили в тот же день.",
       imageUrl: null,
       featured: false,
     },
@@ -407,24 +442,38 @@ async function main() {
       imageUrl: "/images/blog/blog-1.jpg",
     },
     {
-      slug: "geneticheskie-testy-maine-coon-prosto",
-      title: "Генетические тесты мейн-кунов: HCM, PKDef, SMA — что это и зачем",
-      excerpt: "HCM, PKDef и SMA — три генетических заболевания, которые должны быть проверены у каждого производителя. Объясняем простыми словами, что значат буквы N/N и почему это важно.",
-      content: `В карточках наших производителей вы видите три строчки: HCM, PKDef, SMA. Рядом — буквы N/N. Что это значит и почему мы публикуем это открыто?
+      slug: "dokumenty-kotyonka-chto-dolzhno-byt",
+      title: "Документы котёнка: родословная, метрика, ветеринарный паспорт",
+      excerpt: "Какие документы должны быть у котёнка мейн-куна при переезде в новую семью. Что такое родословная, метрика и ветеринарный паспорт — и почему они важны.",
+      content: `Когда котёнок переезжает в новую семью, он должен приехать с пакетом документов. Это не формальность — это гарантия того, что котёнок здоров, имеет подтверждённое происхождение и привит.
 
-HCM — гипертрофическая кардиомиопатия. Это утолщение стенок сердца, которое со временем приводит к сердечной недостаточности. У мейн-кунов есть наследственная форма, связанная с мутацией гена MYBPC3. Если кот несёт мутацию — он может заболеть. Если не несёт — не заболеет и не передаст потомству.
+Родословная (метрика)
+Это документ, подтверждающий происхождение котёнка. В нём указаны 3-5 поколений предков, их окрасы, титулы и номера родословных. Родословная оформляется через клуб и регистрируется в международной системе (WCF, TICA, CFA). Без родословной котёнок — «котёнок без породы», даже если он выглядит как мейн-кун.
 
-PKDef — дефицит пируваткиназы. Это форма анемии: эритроциты разрушаются быстрее, чем должны. Животное выглядит вялым, плохо набирает вес. Тоже наследственное.
+Ветеринарный паспорт
+Международный паспорт, в котором отмечены все прививки, обработки от паразитов и дегельминтизация. К моменту переезда котёнок должен иметь:
+• Первую прививку от панлейкопении, калицивироза и герпесвируса (в 8-9 недель)
+• Ревакцинацию (в 12 недель)
+• Обработку от глистов (за 10-14 дней до прививки)
 
-SMA — спинальная мышечная атрофия. Дегенерация нервных клеток спинного мозга. Котёнок теряет координацию, мышцы слабеют. Прогрессирует медленно, но не лечится.
+Метрика (щенячка/котячка)
+Это предварительный документ, который потом обменивается на родословную. В метрике указаны: кличка, дата рождения, окрас, пол, родители, номер помёта. Метрика выдаётся клубом при регистрации помёта.
 
-Буквы N/N означают «норма/норма» — мутации нет. N/HCM означало бы «носитель» — сам кот здоров, но может передать мутацию котятам. Поэтому производителей-носителей мы в разведение не используем.
+Договор купли-продажи
+Юридический документ, в котором прописаны права и обязанности сторон. В нём указывается: стоимость, условия содержания, гарантии здоровья, порядок возврата при выявлении наследственных заболеваний.
 
-Почему это важно для вас? Потому что котёнок от двух чистых (N/N) родителей гарантированно не получит этих заболеваний. Это не «вероятность 50%», а ноль.
+Чипирование
+Микрочип вшивается под кожу котёнка — это его пожизненный идентификатор. Номер чипа вписывается в ветеринарный паспорт и родословную. При перевозке за границу чип обязателен.
 
-Мы публикуем тесты всех шестерых производителей — и тех, кто с титулами, и тех, кто без. Потому что титул не гарантирует здоровье. А чистый генетический тест — гарантирует.`,
-      category: "Здоровье",
-      readMinutes: 8,
+Что мы даём каждому котёнку:
+1. Метрику (с возможностью обмена на родословную)
+2. Ветеринарный паспорт с отметками о прививках
+3. Договор купли-продажи
+4. Копии родословных родителей
+
+Все документы показываем ДО брони — чтобы вы могли убедиться, что всё в порядке. Это и есть честный подход.`,
+      category: "Документы",
+      readMinutes: 7,
       imageUrl: "/images/blog/blog-3.jpg",
     },
     {
@@ -482,7 +531,7 @@ SMA — спинальная мышечная атрофия. Дегенерац
   }
   console.log(`  ✓ ${posts.length} blog posts seeded`);
 
-  console.log("✅ Seed completed!");
+  console.log("✅ Seed v2 completed!");
 }
 
 main()

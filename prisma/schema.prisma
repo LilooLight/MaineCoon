@@ -10,25 +10,20 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// Breeding cats — 6 producers (3 pairs: male + female)
+// Breeding cats — producers (males + females) + retired mascot
 model Producer {
   id          String   @id @default(cuid())
   name        String
   role        String   // "male" | "female"
-  color       String   // "black" | "tabby" | "silver" | "silver-red"
-  colorLabel  String   // human readable: "Чёрный", "Дикий (табби)", "Серебряный", "Серебряно-рыжий"
+  color       String   // "black" | "tabby" | "silver" | "silver-red" | "black-smoke" | "black-tabby"
+  colorLabel  String   // human readable
   birthDate   String
   imageUrl    String
   bio         String
   personality String   // calm / playful / independent / affectionate
-  hasTitles   Boolean  @default(false)
-  titles      String   // JSON array of titles (empty if none — honest approach)
-  // Genetic tests — all OPEN for transparency
-  testHCM     String   @default("N/N")   // Hypertrophic Cardiomyopathy
-  testPKDef   String   @default("N/N")   // Pyruvate Kinase Deficiency
-  testSMA     String   @default("N/N")   // Spinal Muscular Atrophy
-  testDate    String   // when tests were performed
+  retired     Boolean  @default(false) // retired from breeding (e.g. mascot)
   registry    String   // родословная / registry number
+  documents   String   // JSON array of document descriptions (pedigree, vet passport, etc.)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   littersAsFather Litter[] @relation("LitterFather")

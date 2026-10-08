@@ -1,0 +1,354 @@
+     1→# Worklog — Питомник мейн-кунов «Тихий Дом»
+     2→
+     3→---
+     4→Task ID: main-build
+     5→Agent: Z.ai Code (main orchestrator)
+     6→Task: Построить production-ready сайт семейного питомника мейн-кунов «Тихий Дом» на Next.js 16 с честным позиционированием, открытыми генетическими тестами, фильтром по характеру и онлайн-бронированием.
+     7→
+     8→Work Log:
+     9→- Изучил структуру Next.js 16 проекта (App Router, Tailwind v4, shadcn/ui, Prisma + SQLite).
+    10→- Настроил дизайн-систему в `src/app/globals.css`: тёплая палитра (молочный фон #FBF8F3, шалфейный primary #4A6B57, песочный secondary #C9A77C, терракотовый accent #B86B4B), тёмная тема, кастомный скроллбар, анимации blur-fade и marquee, paw-pattern фон.
+    11→- Подключил шрифты Cormorant Garamond (serif, заголовки) + Manrope (sans, текст) в `layout.tsx`, обновил SEO-метаданные на русском, добавил JSON-LD Breeder schema.
+    12→- Создал Prisma-схему (`prisma/schema.prisma`): модели Producer (с генетическими тестами HCM/PKDef/SMA), Litter, Kitten (с personality-фильтром), Review, BlogPost, Booking. Применил через `bun run db:push`.
+    13→- Сидировал базу (`prisma/seed.ts`): 6 производителей (3 пары, 3 с титулами / 3 без — честный подход), 3 помёта, 9 котят (4 окраса, 4 характера), 6 отзывов-выпускников, 4 SEO-статьи.
+    14→- Сгенерировал 14 тёплых «домашних» изображений через z-ai image CLI (hero, about, family, 6 производителей, 4 окраса котят, 3 выпускника, 3 блога).
+    15→- Создал 6 API-роутов: `/api/kittens` (с фильтрами color/gender/personality/status), `/api/producers`, `/api/reviews`, `/api/blog`, `/api/bookings` (POST с валидацией), `/api/stats`.
+    16→- Построил фронтенд в `src/components/cattery/`: Header (sticky, мобильное меню Sheet), Hero (статистика + плавающие карточки), About (честное позиционирование + 4 дифференциатора), Producers (tabs коты/кошки + диалог с генетическими тестами), KittensCatalog (фильтры окрас/пол/характер/статус + карточки + детальный диалог + бронирование), Reviews (featured + compact), Blog (featured + список), FAQ (accordion), FinalCTA, Footer (sticky через flex min-h-screen flex-col + mt-auto), BookingDialog (с валидацией и success-state).
+    17→- Использовал BookingContext для модального окна бронирования, открываемого из любой карточки котёнка.
+    18→- Проверил `bun run lint` — чисто, без ошибок.
+    19→- Самопроверка через agent-browser: страница рендерится без ошибок, все API возвращают 200/201, фильтр по характеру «Спокойный» → «Найдено: 3 котят, из них 2 доступно», диалог производителя показывает HCM/PKDef/SMA = N/N, форма бронирования отправляется и сохраняется в БД, мобильное меню работает на 390×844.
+    20→
+    21→Stage Summary:
+    22→- Сайт полностью функционален и протестирован end-to-end.
+    23→- Ключевые дифференциаторы реализованы: ① открытые генетические тесты в карточках производителей, ② фильтр по характеру (calm/playful/independent/affectionate) — уникальная функция, ③ онлайн-бронирование + лист ожидания, ④ честное позиционирование (3 из 6 без титулов — не скрывается).
+    24→- SEO: русские метаданные, JSON-LD, блог под информационные запросы, semantic HTML (header/main/section/footer), ARIA.
+    25→- Дизайн: тёплая палитра (шалфейный/песочный/терракотовый), serif-заголовки, sticky-футер, мобильная адаптивность, blur-fade анимации.
+    26→- Известный минорный нюанс: консольное предупреждение Radix "Missing Description for DialogContent" (не блокирующее, accessibility sr-only заголовки присутствуют).
+    27→
+    28→Unresolved issues / next steps:
+    29→- (minor) Радикс-предупреждение про aria-describedby в диалогах — можно починить, явно проставив aria-describedby.
+    30→- Можно добавить больше деталей в карточки котят (видео-превью 30с).
+    31→- Блог-статьи сейчас сокращённые — можно развернуть полноценный контент.
+    32→- Можно добавить страницу/секцию «Выставочные звёзды» для 3 титулованных производителей.
+    33→- Можно добавить real-time обновление наличия котят через WebSocket.
+    34→
+    35→---
+    36→Task ID: cron-round-2
+    37→Agent: Z.ai Code (cron webDevReview — round 2)
+    38→Task: QA через agent-browser, исправление багов и добавление новых фич/стилей для питомника «Тихий Дом».
+    39→
+    40→Work Log:
+    41→- Прочитал worklog.md, оценил статус: проект стабилен, lint чист, dev-сервер работает, все API → 200.
+    42→- QA через agent-browser: открыл страницу (1440×900), проверил ошибки/консоль — чисто (предыдущее предупреждение Radix про aria-describedby уже не появляется, т.к. sr-only DialogHeader/Description работает). Тестировал: tabs коты/кошки, диалог производителя (HCM/PKDef/SMA = N/N), фильтр «Спокойный» → «Найдено: 3 котят, из них 2 доступно».
+    43→- Добавил систему scroll-reveal анимаций: хук `useScrollReveal` (IntersectionObserver, уважает prefers-reduced-motion) + компонент `Reveal` (blur-fade с задержкой для staggered-групп, 4 направления).
+    44→- Создал **PersonalityQuiz** — интерактивный подбор характера котёнка по образу жизни (5 вопросов: домохозяйство, присутствие, темп, что важнее, опыт). Подсчёт баллов → рекомендация одного из 4 темпераментов с описанием + CTA «Показать таких котят» (через CustomEvent `cattery:setFilter` каталог слушает и применяет фильтр автоматически). Это ключевая новая фича, усиливающая дифференциатор «фильтр по характеру».
+    45→- Обновил `KittensCatalog`: добавил слушатель `cattery:setFilter` для приёма результата квиза.
+    46→- Создал **BookingProcess** — секция «Как проходит бронирование» с 4-шаговым таймлайном (Заявка → Звонок заводчика → Знакомство → Бронь) с пронумерованными иконками, соединяющей линией на десктопе и честной заметкой о возврате задатка.
+    47→- Создал **ShowChampions** — секция «Выставочные звёзды» для 3 титулованных производителей с SpotlightCard (hover-подсветка курсора), чипами наград и мягким декоративным glow.
+    48→- Создал **TrustMarquee** — бегущая строка доверия (8 сигналов: пожизненная поддержка, открытые гены, не конвейер, социализация, 20+ выпускников и т.д.) на primary-фоне.
+    49→- Создал **BackToTop** — плавающая кнопка «Наверх» + top scroll-progress bar (градиент primary→secondary→accent), появляется после 80% viewport, уважает reduced-motion.
+    50→- Создал **SpotlightCard** — MagicUI-style обёртка с radial-gradient подсветкой курсора через CSS-переменные + mousemove (без внешних зависимостей). Применил к карточкам котят и чемпионов.
+    51→- Расширил контент блога: переписал `prisma/seed.ts` — 4 статьи теперь содержат полноценный многоабзацный контент (HCM/PKDef/SMA простыми словами, социализация по неделям, чек-лист ухода, выбор для семьи). Пересидировал БД.
+    52→- Обновил `blog.tsx`: добавил reading dialog с полным текстом статьи, изображением-обложкой, мета (мин чтения, автор), кастомной кнопкой закрытия, custom-scroll.
+    53→- Обновил `page.tsx`: добавил новые секции в логичный порядок (Hero → TrustMarquee → About → Producers → ShowChampions → PersonalityQuiz → KittensCatalog → BookingProcess → Reviews → Blog → FAQ → FinalCTA).
+    54→- Дополнил `globals.css`: стили для `.prose-content` (отступы между абзацами), `.fixed-top-bar`, fallback для prefers-reduced-motion (отключает анимации).
+    55→- ESLint: поймал ошибку `set-state-in-effect` в useScrollReveal (setState в эффекте для reduced-motion) → исправил, вынеся проверку prefers-reduced-motion в `useState` initializer. Lint теперь чист.
+    56→- Финальная QA через agent-browser: всё работает — квиз проходит 5 вопросов → результат «Спокойный» → кнопка «Показать таких котят» скроллит к каталогу и применяет фильтр (Найдено: 3 котят), блог-диалог открывает полную статью, back-to-top появляется на скролле, mobile (390×844) адаптивность сохранена, бронирование работает на мобильном. 0 ошибок в консоли.
+    57→
+    58→Stage Summary:
+    59→- Добавлено 6 новых компонентов: PersonalityQuiz, BookingProcess, ShowChampions, TrustMarquee, BackToTop, SpotlightCard + система Reveal (hook + wrapper).
+    60→- Ключевая новая фича: **интерактивный подбор характера** (quiz) — усиливает уникальный дифференциатор «фильтр по характеру» и направляет пользователя в каталог с применённым фильтром.
+    61→- Стиль: scroll-reveal анимации на секциях, cursor-spotlight на карточках, scroll-progress bar, бегущая строка доверия, улучшенный блог с reading dialog.
+    62→- Контент: 4 SEO-статьи развёрнуты до полноценных текстов (5–8 мин чтения каждая).
+    63→- Технический долг: радикс-предупреждение уже устранено (sr-only подход работает).
+    64→
+    65→Unresolved issues / next steps (приоритеты для следующего раунда):
+    66→- (medium) Добавить 30-секундные видео-превью поведения котят (генерация через video-understanding skill или встроенные <video> с placeholder).
+    67→- (medium) Добавить real-time обновление наличия котят через WebSocket (mini-service на socket.io, порт 3003).
+    68→- (low) Кнопка «Сравнить котят» — выбрать 2–3 котёнка и сравнить характер/окрас/цену бок о бок.
+    69→- (low) Тёмная тема toggle в шапке (next-themes уже установлен).
+    70→- (low) Lazy-loading изображений с blur-placeholder (next/image placeholder=blur).
+    71→- (low) Open Graph image + favicon, сгенерированные под бренд «Тихий Дом».
+    72→- (low) Sitemap.xml + robots.txt для SEO.
+    73→
+    74→---
+    75→Task ID: cron-round-3
+    76→Agent: Z.ai Code (cron webDevReview — round 3)
+    77→Task: QA через agent-browser, исправление багов и добавление новых фич/стилей для питомника «Тихий Дом».
+    78→
+    79→Work Log:
+    80→- Прочитал worklog.md, оценил статус: проект стабилен после раунда 2, lint чист, dev-сервер работает, все API → 200.
+    81→- QA через agent-browser (1440×900): проверил все секции, диалоги, квиз — 0 ошибок и предупреждений в консоли. Все заголовки на месте.
+    82→- **Тёмная тема**: создал `ThemeProvider` (next-themes) + `ThemeToggle` (кнопка с анимированной сменой Sun/Moon). Обернул приложение в ThemeProvider в layout.tsx, theme="class", defaultTheme="light", enableSystem. Тёмная палитра уже была в globals.css (зелёно-серый фон, песочный/терракотовый акценты). Кнопка добавлена в шапку (десктоп + мобильное меню).
+    83→- **Избранное (wishlist)**: создал хук `useFavorites` (localStorage + кастомное событие для same-tab синхронизации) с lazy useState-инициализатором (избежал setState-in-effect). Создал `FavoritesPanel` — slide-over с мини-карточками избранных котят, кнопками «Забронировать» и «Убрать», счётчиком, empty-state. Кнопка-сердечко добавлена на каждую карточку котёнка (с toast-уведомлением). Бейдж со счётчиком в шапке (десктоп + мобильный).
+    84→- **Сравнение котят**: создал `CompareProvider` (контекст, макс. 3 котёнка) + `CompareBar` (плавающая панель внизу с миниатюрами выбранных, кнопкой «Сравнить» и очисткой). Создал comparison-диалог — горизонтальная таблица (sticky первая колонка с названиями параметров: Фото, Имя, Статус, Окрас, Пол, Характер, Возраст, Привит, Цена + строка с CTA). Кнопка-compare добавлена на каждую карточку котёнка с toast и ограничением «максимум 3».
+    85→- **Галерея котёнка**: рефакторил `KittenDialog` — вынес контент в `KittenDialogContent` с `key={kitten.id}` (React-idiomatic сброс состояния через key вместо setState-in-effect). Галерея: основное фото котёнка + фото родителей (как «семейные» ракурсы) с миниатюрами внизу, переключение по клику.
+    86→- **SEO-бренд**: сгенерировал OG-изображение (1344×768, тёплый мейн-кун с negative space) и favicon (SVG paw print + house в фирменных цветах). Создал `manifest.json` (theme_color #4A6B57, background #FBF8F3). Добавил `metadataBase`, icons, openGraph.images, twitter.images в layout.tsx.
+    87→- **SEO-роуты**: создал `src/app/sitemap.ts` (8 секций с приоритетами) и `src/app/robots.ts` (allow all + sitemap URL).
+    88→- **useIsMounted**: создал хук через `useSyncExternalStore` (server snapshot false, client snapshot true) — самый чистый способ определить клиентский рендер без setState-in-effect и без hydration mismatch.
+    89→- ESLint: поймал 5 ошибок `set-state-in-effect` (theme-toggle, use-favorites, kittens-catalog gallery reset, favorites-panel, compare-bar) → исправил: useSyncExternalStore для mounted, lazy useState-инициализаторы для localStorage, key-based remount для галереи, microtask для setLoading, derived visible для compare-bar. Lint теперь чист (0 ошибок).
+    90→- Финальная QA через agent-browser: всё работает end-to-end — избранное добавляется/показывается в slide-over с бейджем в шапке, сравнение 2 котят открывает таблицу с фото/именами/характером/ценой, галерея котёнка переключает фото с родителями, тёмная тема переключается (0 ошибок в консоли в обоих режимах), мобильная адаптация (390×844) сохранена для всех новых фич.
+    91→
+    92→Stage Summary:
+    93→- Добавлено 5 новых компонентов: ThemeToggle, FavoritesPanel, CompareProvider+CompareBar+CompareDialog, KittenGallery (внутри KittenDialog), ThemeProvider + хуки useFavorites/useIsMounted.
+    94→- Ключевые новые фичи: ① тёмная тема (toggle в шапке), ② избранное с localStorage и slide-over, ③ сравнение котят (до 3) с таблицей, ④ галерея фото котёнка+родители, ⑤ SEO-бренд (OG image, favicon, manifest, sitemap, robots).
+    95→- Техническое качество: все паттерны React 19-совместимые (без setState-in-effect, useSyncExternalStore для mounted, key-based reset), lint чист, 0 консольных ошибок.
+    96→
+    97→Unresolved issues / next steps (приоритеты для следующего раунда):
+    98→- (medium) 30-секундные видео-превью поведения котят (video-understanding skill или <video> с placeholder).
+    99→- (medium) Real-time обновление наличия котят через WebSocket (mini-service socket.io, порт 3003).
+   100→- (low) Lazy-loading изображений с blur-placeholder (next/image placeholder=blur — нужны сгенерированные blur data URLs).
+   101→- (low) Страница статьи блога по slug (отдельный маршрут /blog/[slug]) вместо диалога — лучше для SEO.
+   102→- (low) Анимация появления карточек котят при фильтрации (staggered fade).
+   103→- (low) Cookie-баннер (GDPR/152-ФЗ) — пока не реализован.
+   104→- (low) Интеграция с реальным мессенджером (WhatsApp/Telegram) через API для автоматизации ответов.
+   105→
+   106→---
+   107→Task ID: cron-round-4
+   108→Agent: Z.ai Code (cron webDevReview — round 4)
+   109→Task: QA через agent-browser, исправление багов и добавление новых фич/стилей для питомника «Тихий Дом».
+   110→
+   111→Work Log:
+   112→- Прочитал worklog.md, оценил статус: проект стабилен после раунда 3, lint чист, dev-сервер работает, все API → 200.
+   113→- QA через agent-browser (1440×900): проверил все секции — 0 ошибок в консоли, 53 заголовка на странице, все 9 основных секций рендерятся.
+   114→- **Страницы статей блога (/blog/[slug])**: создал server-component страницу с SSG (`generateStaticParams` + `generateMetadata`). Создал API `/api/blog/[slug]` (возвращает статью + related). Страница включает: мини-хедер, breadcrumb, обложку, lead-абзац, полный контент разбитый по абзацам, CTA-блок, похожие статьи, footer, back-to-top. JSON-LD Article schema для SEO. Обновил `blog.tsx` на главной: карточки теперь `<Link href="/blog/[slug]">` вместо диалога — лучше для SEO и индексации.
+   115→- **Cookie-баннер (152-ФЗ)**: создал `CookieConsent` компонент — появляется через 1.5с если нет решения в localStorage, с двумя кнопками («Принять все» / «Только необходимые»), toast-уведомлениями, кнопкой закрытия. Добавлен глобально в layout.tsx (показывается на всех страницах включая статьи блога). Текст про 152-ФЗ и виды cookie.
+   116→- **WebSocket mini-service**: создал `mini-services/availability-service/` (bun + socket.io, порт 3003). Health-check endpoint, события `availability:snapshot` (онлайн-зрители), `availability:event` (stats-update, kitten:viewing broadcast). Демо-события каждые 45с. Запущен в фоне через `setsid bun run dev`.
+   117→- **LiveAvailability компонент**: подключается к `/?XTransformPort=3003` (через Caddy gateway), показывает live-индикатор «В эфире» с пульсирующей точкой, счётчик онлайн-зрителей, последние события. Graceful degradation — показывает «Соединение...» если WS недоступен (в локальном dev без gateway). Добавлен в каталог котят над фильтрами.
+   118→- **Litter Timeline секция**: создал API `/api/litters` (с родителями и счётчиком available). Создал `LitterTimeline` — вертикальный timeline с date-маркерами (кружки с датой), карточками помётов, мини-фото родителей (Отец × Мать), badge «Ожидается» для будущих, счётчиком «котят в помёте» и «доступно», CTA «Записаться в лист ожидания» для ожидаемых. Добавил в page.tsx между KittensCatalog и BookingProcess, добавил ссылку «Помёты» в навигацию.
+   119→- **Staggered fade анимация**: добавил keyframe `kitten-card-in` в globals.css, обернул карточки котят в div с `kitten-card-enter` классом и animationDelay по индексу (макс 8 × 60мс). Key на filter-state заставляет React перемонтировать grid при смене фильтров → анимация проигрывается заново.
+   120→- **Стилевые улучшения**: добавил в globals.css — `.text-gradient-warm` (градиентный текст primary→secondary→accent), `.card-lift` (hover translateY), `.section-divider`, `.blob` (декоративные blur-пятна), `kitten-card-enter` анимация, `prefers-reduced-motion` fallback для новых анимаций.
+   121→- **Next.js scroll-behavior fix**: добавил `data-scroll-behavior="smooth"` на `<html>` и ограничил CSS правило `html[data-scroll-behavior="smooth"]` — устраняет предупреждение Next.js о smooth scroll при route transitions.
+   122→- Финальная QA: lint чист (0 ошибок), dev-сервер + availability-service работают (оба порта 3000 и 3003 слушают), страница блога `/blog/geneticheskie-testy-maine-coon-prosto` рендерится с полным контентом (HCM, PKDef, SMA, N/N объяснения), cookie-баннер появляется и исчезает после принятия, litter timeline показывает 3 помёта с правильными статусами, мобильная адаптация (390×844) сохранена.
+   123→
+   124→Stage Summary:
+   125→- Добавлено 4 новых компонента: BlogArticlePage (server component, SSG), CookieConsent (152-ФЗ), LitterTimeline, LiveAvailability + WebSocket mini-service.
+   126→- 2 новых API-роута: `/api/blog/[slug]`, `/api/litters`.
+   127→- 1 новый mini-service: availability-service (socket.io, порт 3003) с real-time событиями.
+   128→- Ключевые новые фичи: ① dedicated blog article pages (SEO-оптимизированные, SSG, JSON-LD Article), ② cookie consent (152-ФЗ compliance), ③ real-time availability через WebSocket, ④ litter timeline с хронологией помётов, ⑤ staggered fade анимация карточек.
+   129→- Техническое качество: server components для SEO, SSG для статей, lint чист, 0 runtime ошибок.
+   130→
+   131→Unresolved issues / next steps (приоритеты для следующего раунда):
+   132→- (medium) 30-секундные видео-превью поведения котят (video-understanding skill или <video> с placeholder).
+   133→- (low) Lazy-loading изображений с blur-placeholder (next/image placeholder=blur).
+   134→- (low) Админ-панель для заводчика (управление котятами/помётами/броном) — пока только БД.
+   135→- (low) Интеграция с реальным мессенджером (WhatsApp/Telegram) через API.
+   136→- (low) Страница 404 кастомная (собака/кот не найден).
+   137→- (low) Аналитика просмотров статей (при согласии cookie).
+   138→
+   139→---
+   140→Бонус (в рамках того же раунда):
+   141→- Обновил `sitemap.ts` — теперь динамически включает все опубликованные статьи блога (`/blog/[slug]`) с updatedAt и priority 0.8. Проверено: sitemap.xml содержит все 4 статьи + 9 секций главной страницы. SEO полностью настроен.
+   142→
+   143→---
+   144→Task ID: cron-round-5
+   145→Agent: Z.ai Code (cron webDevReview — round 5)
+   146→Task: QA через agent-browser, исправление багов и добавление новых фич/стилей для питомника «Тихий Дом».
+   147→
+   148→Work Log:
+   149→- Прочитал worklog.md, оценил статус: проект стабилен после раунда 4, lint чист, dev-сервер работает, все API → 200.
+   150→- Обнаружил: availability-service (WebSocket, порт 3003) упал — перезапустил через `setsid bun run dev`.
+   151→- QA через agent-browser (1440×900): все 10 секций рендерятся, 0 ошибок в консоли, блог-статья `/blog/geneticheskie-testy-maine-coon-prosto` работает с полным контентом.
+   152→- **Секция «Заводчик» (BreederIntro)**: сгенерировал портрет заводчика (тёплое фото с мейн-куном). Создал компонент с: фото + плавающая карточка-подпись (Мария Тихонова, основатель), личная история, 4 ценности-карточки («Не менеджер 24/7, а человек», «Поддержка на всю жизнь», «Честность важнее продажи», «Учу, а не отдаю»), CTA «Позвонить Марии» / «Написать в WhatsApp». Добавил ссылку «Заводчик» в навигацию.
+   153→- **ExpectedCountdown**: создал live-обратный отсчёт до рождения ожидаемого помёта. Дни/часы/минуты/секунды в карточках с tabular-nums, обновление каждую секунду через derived state (без setState-in-effect — использую `now` state для re-render). Состояние «Помёт родился!» когда дата прошла. Обновил seed: помёт «Зима 2026» (ожидается) с датой 2026-12-15 — отсчёт показывает 68 дней. Добавлены родители, описание, CTA в лист ожидания.
+   154→- **Custom 404 page**: создал `not-found.tsx` с темой «Этот котёнок убежал» — большая 404 с gradient-text, paw-print иконка с пульсирующими знаками вопроса, 3 кнопки навигации (На главную / Найти котёнка / В блог), декоративный paw-pattern фон, честная подпись «Каждый котёнок — событие. Даже потеряться.».
+   155→- **Admin panel (Кабинет заводчика)**: создал API `/api/bookings/list` (GET список + статистика, PATCH статус, DELETE). Создал страницу `/admin` — dashboard с: stats grid (Всего/Новые/Связались/Подтвержд./Бронь/Лист ожид.), tabs-фильтр по статусам с бейджами, список заявок-карточек (имя, телефон, email, котёнок, сообщение, дата, тип-иконка), detail-диалог с управлением статусом (4 кнопки), удалением, toast-уведомлениями. Протестировано end-to-end: создал 2 тестовые заявки → появились в админке → изменил статус «Связались» → БД обновилась (confirmed status: contacted).
+   156→- ESLint: поймал 1 ошибку `set-state-in-effect` в ExpectedCountdown (`setTimeLeft(calcTimeLeft(target))` синхронно в effect) → исправил: refactor на derived state — `timeLeft` вычисляется в render из `litter.bornAt` + `now` state (который тикает через setInterval в callback, что разрешено). Lint чист.
+   157→- Финальная QA: lint чист, обе страницы работают (404 + admin), countdown тикает (68 дней, секунды меняются 59→57 за 2с), breeder-intro рендерится с фото и ценностями, мобильная адаптация (390×844) сохранена для всех новых секций, 0 ошибок в консоли.
+   158→
+   159→Stage Summary:
+   160→- Добавлено 4 новых компонента/страницы: BreederIntro, ExpectedCountdown, NotFound (404), AdminPage + API /api/bookings/list.
+   161→- Ключевые новые фичи: ① секция заводчика с лицом и историей (доверие), ② live-обратный отсчёт до помёта, ③ кастомная 404 в фирменном стиле, ④ полноценный кабинет заводчика с управлением заявками.
+   162→- Сгенерировано 1 новое изображение (портрет заводчика).
+   163→- Техническое качество: derived state для countdown (без setState-in-effect), server-side API с валидацией, lint чист, 0 runtime ошибок.
+   164→
+   165→Unresolved issues / next steps (приоритеты для следующего раунда):
+   166→- (medium) 30-секундные видео-превью поведения котят (video-understanding skill или <video> с placeholder).
+   167→- (low) Lazy-loading изображений с blur-placeholder (next/image placeholder=blur).
+   168→- (low) Админ-панель: аутентификация (сейчас /admin открыт — добавить NextAuth или простой пароль).
+   169→- (low) Админ-панель: управление котятами/помётами/производителями (сейчас только заявки).
+   170→- (low) Аналитика просмотров статей (при согласии cookie).
+   171→- (low) Care checklist PDF для новых владельцев (генерация через pdf skill).
+   172→- (low) Интеграция с реальным мессенджером (WhatsApp/Telegram) через API.
+   173→
+   174→---
+   175→Task ID: cron-round-6
+   176→Agent: Z.ai Code (cron webDevReview — round 6)
+   177→Task: QA через agent-browser, исправление багов и добавление новых фич/стилей для питомника «Тихий Дом».
+   178→
+   179→Work Log:
+   180→- Прочитал worklog.md, оценил статус: проект стабилен после раунда 5, lint чист, dev-сервер работает.
+   181→- Обнаружил: availability-service (WebSocket, порт 3003) упал — перезапустил.
+   182→- QA через agent-browser (1440×900): все 11 секций рендерятся, 0 ошибок в консоли.
+   183→- **Админ-аутентификация**: создал API `/api/admin/auth` (POST login с httpOnly cookie, GET check, DELETE logout). Создал страницу `/admin/login` (client component) с формой пароля, показом/скрытием, демо-паролем, авто-редиректом если уже авторизован. Переделал `/admin` в server component (`page.tsx`) с guard: читает cookie через `next/headers`, если нет — `redirect("/admin/login")`. Перенёс dashboard в `admin-dashboard.tsx`. Добавил кнопку «Выйти» в хедер админки. Демо-пароль: `tihiy-dom-2026` (env ADMIN_PASSWORD). Протестировано end-to-end: `/admin` → редирект на login → ввод пароля → редирект на dashboard → «Выйти» → обратно на login.
+   184→- **Багфикс auth**: поймал `ReferenceError: maxAge is not defined` (использовал `maxAge` вместо `MAX_AGE` в cookies.set). Исправил. Проверил через curl — API возвращает `{"success":true}` с cookie.
+   185→- **Секция «Приехать познакомиться» (VisitUs)**: сгенерировал тёплое фото интерьера дома. Создал компонент с: фото + плавающая карточка адреса (Москва, Юго-Западная, «15 мин от метро»), pulsing-badge «Принимаем гостей», 3 правила визита («Только по записи», «Это наш дом», «15 минут от метро»), CTA «Записаться на визит» + «Позвонить». Добавил ссылку «Визит» в навигацию.
+   186→- **Care Checklist PDF**: через pdf skill создал HTML-чек-лист (фирменный стиль, 2 страницы, A4) с разделами: Кормление, Ветеринар и прививки (таблица-расписание по возрастам), Груминг, Среда и поведение, callout про поддержку заводчика. Сгенерировал PDF через `html2pdf-next.js --nopaged` (2 страницы, 66 KB, vector). Проверил через `pdf_qa.py` — 10 checks passed, 2 minor warnings. Добавил metadata (Title, Author, Subject). Скопировал PDF+HTML в `public/download/`. Создал компонент `CareChecklist` — секция с описанием, списком хайлайтов, кнопкой скачивания PDF и мок-превью листа PDF с layered paper effect. Добавил на страницу между VisitUs и Blog.
+   187→- ESLint: поймал 1 ошибку JSX (`<br>` без закрывающего тега в care-checklist.tsx) → исправил на `<br />`. Багфикс auth API (`MAX_AGE`). Lint чист.
+   188→- Финальная QA: lint чист, обе новые секции (VisitUs, CareChecklist) рендерятся, PDF скачивается (HTTP 200, 66 KB, application/pdf), админ-логин работает (login → dashboard → logout → login), мобильная адаптация (390×844) сохранена, 0 ошибок в консоли. Оба сервиса (3000 + 3003) запущены.
+   189→
+   190→Stage Summary:
+   191→- Добавлено 4 новых компонента/страницы/файла: VisitUs, CareChecklist, AdminLoginPage + AdminAuth API + server guard на /admin.
+   192→- 2 новых API-роута: `/api/admin/auth` (POST/GET/DELETE), + `/admin` теперь server-gated.
+   193→- 1 новый PDF: care-checklist.pdf (2 страницы, фирменный стиль, для новых владельцев).
+   194→- Ключевые новые фичи: ① админ-аутентификация с cookie-based паролем (защита /admin), ② секция «Приехать познакомиться» с локацией и правилами визита, ③ downloadable care checklist PDF (PDF skill), ④ кнопка «Выйти» в админке.
+   195→- Сгенерировано 1 новое изображение (интерьер дома для визита).
+   196→- Техническое качество: server-side cookie auth, httpOnly cookies, server component guard, lint чист, 0 runtime ошибок.
+   197→
+   198→Unresolved issues / next steps (приоритеты для следующего раунда):
+   199→- (medium) 30-секундные видео-превью поведения котят (video-understanding skill или <video> с placeholder).
+   200→- (low) Lazy-loading изображений с blur-placeholder (next/image placeholder=blur).
+   201→- (low) Админ-панель: CRUD для котят/помётов/производителей (сейчас только заявки).
+   202→- (low) Аналитика просмотров статей (при согласии cookie).
+   203→- (low) Интеграция с реальным мессенджером (WhatsApp/Telegram) через API.
+   204→- (low) Страница «О нас» с историей питомника (отдельный маршрут для SEO).
+   205→- (low) availability-service стабильно падает между раундами — добавить auto-restart через process manager (pm2 или systemd).
+   206→
+   207→---
+   208→Task ID: cron-round-7
+   209→Agent: Z.ai Code (cron webDevReview — round 7)
+   210→Task: QA через agent-browser, исправление багов и добавление новых фич/стилей для питомника «Тихий Дом».
+   211→
+   212→Work Log:
+   213→- Прочитал worklog.md, оценил статус: проект стабилен после раунда 6, lint чист, dev-сервер работает.
+   214→- Обнаружил: availability-service (WebSocket, порт 3003) упал — перезапустил. Позже добавил keepalive-супервизор.
+   215→- QA через agent-browser (1440×900): все 13 секций рендерятся, 0 ошибок в консоли.
+   216→- **Image blur placeholders (lazy loading)**: создал утилиту `src/lib/blur.ts` с `BLUR_DATA_URLS` — генерирует SVG-based solid-color blur data URLs в фирменной палитре (background/muted/primary/secondary/accent/dark). Делегировал субагенту применение `placeholder="blur"` + `blurDataURL` ко всем `<Image>` компонентам — покрыто 17 изображений в 11 файлах (about, producers, kittens-catalog, show-champions, reviews, blog, breeder-intro, visit-us, favorites-panel, compare-bar, blog/[slug]/page). Hero уже имел blur. Lint чист после применения.
+   217→- **Personality Guide секция**: создал компонент `personality-guide.tsx` — детальный гид по 4 темпераментам (Спокойный/Игривый/Независимый/Ласковый). Каждая карточка: иконка + tagline, описание, 4 trait-бара (Активность/Ласка/Терпение/Самостоятельность с high/medium/low), секция «Подойдёт» (с иконками аудитории), «Не подойдёт», честная заметка про генетику vs воспитание. Цвета карточек соответствуют темпераменту (primary/secondary/muted/accent). Добавил на страницу между ShowChampions и PersonalityQuiz.
+   218→- **Keepalive супервизор**: создал `mini-services/keepalive-availability.sh` — bash-супервизор, который запускает availability-service и автоматически перезапускает его при падении (через while-цикл с 3-секундной задержкой). Запустил через `setsid bash keepalive-availability.sh & disown`. Оба процесса (bash-супервизор + bun-сервис) работают на порту 3003. Решает проблему частых падений availability-service между раундами.
+   219→- Финальная QA: lint чист, Personality Guide рендерится со всеми 4 карточками и trait-барами, blur placeholders применены (нет белых вспышек при загрузке), keepalive-супервизор работает, мобильная адаптация (390×844) сохранена, 0 ошибок в консоли.
+   220→
+   221→Stage Summary:
+   222→- Добавлено 2 новых компонента/файла: PersonalityGuide, blur.ts (утилита) + keepalive-availability.sh (супервизор).
+   223→- Ключевые новые фичи: ① image blur placeholders (17 изображений, lazy loading с tinted blur), ② Personality Guide — детальный гид по 4 темпераментам с trait-барами и аудиторией, ③ keepalive-супервизор для availability-service (auto-restart).
+   224→- Техническое качество: SVG-based blur data URLs (без raster overhead), trait bars через CSS, lint чист, 0 runtime ошибок.
+   225→
+   226→Unresolved issues / next steps (приоритеты для следующего раунда):
+   227→- (medium) 30-секундные видео-превью поведения котят (video-understanding skill или <video> с placeholder).
+   228→- (low) Админ-панель: CRUD для котят/помётов/производителей (сейчас только заявки).
+   229→- (low) Аналитика просмотров статей (при согласии cookie).
+   230→- (low) Интеграция с реальным мессенджером (WhatsApp/Telegram) через API.
+   231→- (low) Страница «О нас» с историей питомника (отдельный маршрут для SEO).
+   232→- (note) keepalive-супервизор работает, но sandbox может убивать процессы между cron-раундами — скрипт нужно запускать вручную в начале каждого раунда.
+   233→
+   234→---
+   235→Task ID: cron-round-8
+   236→Agent: Z.ai Code (cron webDevReview — round 8)
+   237→Task: QA через agent-browser, исправление багов и добавление новых фич/стилей для питомника «Тихий Дом».
+   238→
+   239→Work Log:
+   240→- Прочитал worklog.md, оценил статус: проект стабилен после раунда 7, lint чист, dev-сервер работает.
+   241→- Обнаружил: availability-service (WebSocket, порт 3003) упал — перезапустил через keepalive-супервизор.
+   242→- QA через agent-browser (1440×900): все 14 секций рендерятся, 0 ошибок в консоли.
+   243→- **Kitten behavior preview (видео-превью)**: добавил поле `videoUrl` в Prisma-схему Kitten (опциональное). Создал компонент `BehaviorPreview` внутри kitten detail dialog — показывает "Поведение в движении" с play/pause кнопкой. Если videoUrl задан — играет реальный <video>. Иначе — Ken Burns анимация (zoom-pan 8с loop) на изображении котёнка с personality-специфичной подписью ("Спокойно наблюдает", "Активно играет", "Самостоятельно гуляет", "Ласкается и мурчит"), прогресс-баром, виньеткой. Добавил CSS keyframes `ken-burns` и `ken-burns-progress` в globals.css.
+   244→- **Article view analytics**: добавил поле `views` (Int) в Prisma-схему BlogPost. Создал API `/api/blog/[slug]/view` (POST — инкремент просмотров через raw SQL). Создал клиентский компонент `ArticleViewTracker` — проверяет consent в localStorage, и только если "accepted" отправляет POST. Без PII. Добавил на страницу статьи: отображение счётчика просмотров (Eye иконка + pluralizeViews) и трекер. Протестировано end-to-end: открыл статью → DB views: 0→1→2.
+   245→- **Багфикс Prisma stale client**: после добавления полей `views`/`videoUrl` в схему, Next.js dev-сервер кешировал старый Prisma Client — `db.blogPost.update({data:{views:{increment:1}}})` падал с "Unknown argument views". Решение: переписал view API на raw SQL (`db.$executeRaw\`UPDATE BlogPost SET views = views + 1 WHERE slug = ${slug}\``) — обходит валидацию полей клиентом. Lint чист, API возвращает 200.
+   246→- **Страница «О нас» (/about)**: создал server component с SEO-метаданными. Содержит: hero с заголовком и описанием, cover image (сгенерированное фото двух мейн-кунов у окна), stats band (производители/помёты/выпускники/лет), 4 принципа-карточки, history timeline (2020-2026: Первая кошка → Первый помёт → Регистрация → Первые выпускники → Сайт → Сегодня), честная заметка о титулах, CTA. Добавил ссылку «Читать всю историю» в About-секцию главной. Обновил footer nav (ссылки «О нас» → /about). Добавил /about в sitemap. Сгенерировал 1 новое изображение (about-history.jpg).
+   247→- ESLint: 0 ошибок. Багфикс raw SQL для view tracking.
+   248→- Финальная QA: lint чист, /about рендерится с timeline 2020-2026, kitten dialog показывает behavior preview с play/pause, article page показывает view count, view tracking работает (DB 0→2), мобильная адаптация (390×844) сохранена, 0 ошибок в консоли. keepalive-супервизор запущен.
+   249→
+   250→Stage Summary:
+   251→- Добавлено 4 новых компонента/страницы: BehaviorPreview (в kittens-catalog), ArticleViewTracker, /about page, /api/blog/[slug]/view.
+   252→- 2 изменения Prisma-схемы: Kitten.videoUrl (optional), BlogPost.views (Int default 0).
+   253→- Ключевые новые фичи: ① kitten behavior preview (Ken Burns анимация или реальное видео), ② article view analytics (с cookie consent), ③ dedicated /about page с history timeline.
+   254→- Сгенерировано 1 новое изображение (about-history.jpg — два мейн-куна у окна).
+   255→- Техническое качество: raw SQL для обхода stale Prisma client, cookie-consent-gated analytics, server component для SEO, lint чист, 0 runtime ошибок.
+   256→
+   257→Unresolved issues / next steps (приоритеты для следующего раунда):
+   258→- (medium) Реальные 30-сек видео-превью поведения котят (video-generation skill) — сейчас Ken Burns анимация как fallback.
+   259→- (low) Админ-панель: CRUD для котят/помётов/производителей (сейчас только заявки).
+   260→- (low) Интеграция с реальным мессенджером (WhatsApp/Telegram) через API.
+   261→- (low) Страница контактов / форма обратной связи.
+   262→- (note) keepalive-супервизор работает, но sandbox убивает процессы между cron-раундами — нужно запускать вручную в начале каждого раунда.
+   263→- (note) Prisma Client в Next.js dev-сервере кешируется — при schema changes нужен raw SQL или рестарт сервера (нельзя сделать вручную).
+   264→
+   265→---
+   266→Task ID: cron-round-9
+   267→Agent: Z.ai Code (cron webDevReview — round 9)
+   268→Task: QA через agent-browser, исправление багов и добавление новых фич/стилей для питомника «Тихий Дом».
+   269→
+   270→Work Log:
+   271→- Прочитал worklog.md, оценил статус: проект стабилен после раунда 8, lint чист, dev-сервер работает.
+   272→- Обнаружил: availability-service (WebSocket, порт 3003) упал — перезапустил через keepalive-супервизор.
+   273→- QA через agent-browser (1440×900): все 15 секций рендерятся, 0 ошибок в консоли.
+   274→- **Admin CRUD для котят**: добавил модель ContactMessage в Prisma-схему. Создал API `/api/admin/kittens` (GET список + litters, POST create через raw SQL) и `/api/admin/kittens/[id]` (PATCH update, DELETE). Создал компонент `AdminKittens` — список котят с миниатюрами, badge статуса/окраса/пола, кнопками edit/delete, диалог create/edit с формой (имя, цена, окрас, пол, характер, статус, помёт, дата рождения, URL изображения/видео, описание, чекбокс «привит»). Добавил tab-switcher в admin-dashboard (Заявки/Котята). Протестировано end-to-end: create → котёнок появился в списке и БД → delete → toast + БД пуста.
+   275→- **Багфикс Prisma stale client (create)**: `db.kitten.create()` падал с "Unknown argument videoUrl" (stale client). Переписал POST на raw SQL INSERT. PATCH/DELETE используют стандартный Prisma (не затрагивают новое поле).
+   276→- **Страница контактов (/contacts)**: создал page с contact form (имя, email, телефон, тема-чипы, сообщение) → API `/api/contact` (POST, raw SQL INSERT в ContactMessage). Страница включает: 4 контакт-метода (телефон/WhatsApp/email/адрес), форма с валидацией и success-state, изображение рабочего места заводчика, карточки «Время ответа» и «Прежде чем писать». Протестировано: отправил форму → "Сообщение отправлено!" → DB подтверждает запись. Добавил /contacts в footer nav и sitemap.
+   277→- Сгенерировано 1 новое изображение (contacts.jpg — рабочее место заводчика с мейн-куном).
+   278→- ESLint: 0 ошибок.
+   279→- Финальная QA: lint чист, admin kittens CRUD работает (create + delete), contacts page форма работает (DB подтверждает), мобильная адаптация сохранена, 0 ошибок в консоли. keepalive-супервизор запущен.
+   280→
+   281→Stage Summary:
+   282→- Добавлено 5 новых компонентов/API/страниц: AdminKittens component, /api/admin/kittens (GET+POST), /api/admin/kittens/[id] (PATCH+DELETE), /contacts page, /api/contact (POST).
+   283→- 1 изменение Prisma-схемы: ContactMessage model (id, name, email, phone?, subject, message, status, timestamps).
+   284→- Ключевые новые фичи: ① admin CRUD для котят (create/edit/delete с формой), ② tab-switcher в админке (Заявки/Котята), ③ dedicated /contacts page с формой обратной связи.
+   285→- Сгенерировано 1 новое изображение (contacts.jpg).
+   286→- Техническое качество: raw SQL для обхода stale Prisma client (create + contact), cookie-consent-gated, lint чист, 0 runtime ошибок.
+   287→
+   288→Unresolved issues / next steps (приоритеты для следующего раунда):
+   289→- (medium) Реальные 30-сек видео-превью поведения котят (video-generation skill).
+   290→- (low) Админ: просмотр contact messages в dashboard.
+   291→- (low) Админ: CRUD для помётов и производителей.
+   292→- (low) Интеграция с реальным мессенджером (WhatsApp/Telegram) через API.
+   293→- (low) Search functionality (kittens + blog) на главной.
+   294→- (note) keepalive-супервизор: нужно запускать вручную в начале каждого раунда.
+   295→- (note) Prisma Client stale: все новые поля требуют raw SQL до рестарта dev-сервера.
+   296→
+   297→---
+   298→Task ID: cron-round-10
+   299→Agent: Z.ai Code (cron webDevReview — round 10)
+   300→Task: QA через agent-browser, исправление багов и добавление новых фич/стилей для питомника «Тихий Дом».
+   301→
+   302→Work Log:
+   303→- Прочитал worklog.md, оценил статус: проект стабилен после раунда 9, lint чист, dev-сервер работает.
+   304→- Обнаружил: availability-service (WebSocket, порт 3003) упал — перезапустил через keepalive-супервизор.
+   305→- QA через agent-browser (1440×900): все 15 секций рендерятся, 0 ошибок в консоли.
+   306→- **Глобальный поиск (Search Palette)**: создал API `/api/search` (GET — поиск по котятам, производителям, статьям через raw SQL с COLLATE NOCASE для case-insensitive Cyrillic). Создал компонент `SearchPalette` — command-palette-style диалог с debounced-поиском (250мс), grouped results (Котята/Производители/Статьи), keyboard navigation (↑↓ + Enter), результат-карточки с миниатюрами/badge/ценой. Добавил кнопку «Поиск» в header (десктоп с ⌘K badge + мобильный). Зарегистрировал Ctrl+K / Cmd+K shortcut через хук `useSearchShortcut`. Протестировано: поиск «серебр» → найдены котята + производитель Себастьян.
+   307→- **Багфикс search case-sensitivity**: первый вариант через Prisma `contains` возвращал пустые результаты для Cyrillic (SQLite contains чувствителен к регистру). Переписал на raw SQL с `LIKE ${pattern} COLLATE NOCASE` — работает для русского и английского.
+   308→- **Admin сообщения (AdminMessages)**: создал API `/api/admin/messages` (GET список + stats через raw SQL, PATCH статус, DELETE). Создал компонент `AdminMessages` — список сообщений с stats grid (Всего/Новые/Прочитано/Отвечено), tabs-фильтр по статусам, карточки с именем/темой/сообщением/email/телефоном/датой, detail-диалог с кнопками «Ответить» (mailto), «Отвечено» (статус), «Закрыть», «Удалить». Auto-mark as read при открытии. Добавил tab «Сообщения» в admin dashboard (теперь 3 вкладки: Заявки/Котята/Сообщения). Протестировано: открыл существующее сообщение → детали показаны → статус обновлён.
+   309→- **Share kitten feature**: добавил кнопку «Поделиться» (Share2 icon) на каждую карточку котёнка. Использует Web Share API (navigator.share) если доступно, иначе копирует URL в clipboard с toast-уведомлением. Протестировано: клик → «Ссылка скопирована / Поделитесь котёнком Барсик с близкими.»
+   310→- ESLint: 0 ошибок.
+   311→- Финальная QA: lint чист, search palette работает (поиск «серебр» → результаты), admin messages работают (detail dialog + статус), share button работает (clipboard + toast), мобильная адаптация (390×844) сохранена, 0 ошибок в консоли. keepalive-супервизор запущен.
+   312→
+   313→Stage Summary:
+   314→- Добавлено 5 новых компонентов/API: SearchPalette component + useSearchShortcut hook, /api/search (raw SQL + COLLATE NOCASE), AdminMessages component, /api/admin/messages (GET+PATCH+DELETE raw SQL), share button в KittenCard.
+   315→- Ключевые новые фичи: ① глобальный поиск с command palette (Ctrl+K, grouped results, keyboard nav), ② admin сообщения (просмотр/статус/ответ/удаление), ③ share kitten (Web Share API + clipboard fallback), ④ 3-я вкладка в админке.
+   316→- Техническое качество: raw SQL с COLLATE NOCASE для Cyrillic search, raw SQL для ContactMessage (stale client workaround), Web Share API + clipboard fallback, lint чист, 0 runtime ошибок.
+   317→
+   318→Unresolved issues / next steps (приоритеты для следующего раунда):
+   319→- (medium) Реальные 30-сек видео-превью поведения котят (video-generation skill).
+   320→- (low) Админ: CRUD для помётов и производителей.
+   321→- (low) Интеграция с реальным мессенджером (WhatsApp/Telegram) через API.
+   322→- (low) Search: добавить поиск по отзывам и FAQ.
+   323→- (low) PWA: service worker для offline-доступа.
+   324→- (note) keepalive-супервизор: нужно запускать вручную в начале каждого раунда.
+   325→- (note) Prisma Client stale: все новые поля требуют raw SQL до рестарта dev-сервера.
+   326→
+   327→---
+   328→Task ID: round-7-blur
+   329→Agent: subagent (blur placeholders)
+   330→Task: Apply image blur placeholders across all cattery components
+   331→
+   332→Work Log:
+   333→- Изучил worklog.md и `/src/lib/blur.ts` (BLUR_DATA_URLS с ключами background/muted/primary/secondary/accent/dark, DEFAULT_BLUR=muted). hero.tsx уже использовал `placeholder="blur"` + `BLUR_DATA_URLS.muted` — использовал как референс.
+   334→- about.tsx: добавил импорт + 2 изображения (about.jpg, calm-companion.jpg) — muted blur.
+   335→- producers.tsx: добавил импорт + 2 изображения (карточка производителя + диалог) — muted blur.
+   336→- kittens-catalog.tsx: добавил импорт + 3 изображения (карточка котёнка, основной образ в диалоге, миниатюры галереи incl. фото родителей) — muted blur.
+   337→- show-champions.tsx: добавил импорт + 1 изображение (карточка чемпиона) — secondary blur (под тон наградных ленточек).
+   338→- reviews.tsx: добавил импорт + 1 изображение (featured review) — muted blur.
+   339→- blog.tsx: добавил импорт + 2 изображения (featured пост + compact thumbnail) — muted blur.
+   340→- breeder-intro.tsx: добавил импорт + 1 изображение (портрет заводчика) — muted blur.
+   341→- visit-us.tsx: добавил импорт + 1 изображение (интерьер дома) — muted blur.
+   342→- favorites-panel.tsx: добавил импорт + 1 изображение (миниатюра избранного котёнка) — muted blur.
+   343→- compare-bar.tsx: добавил импорт + 2 изображения (миниатюра в плавающей панели + изображение в таблице сравнения) — muted blur.
+   344→- blog/[slug]/page.tsx: добавил импорт + 1 изображение (обложка статьи, priority сохранён, добавлен placeholder+blurDataURL) — muted blur.
+   345→- Всего: 11 файлов, 17 изображений получили blur placeholder.
+   346→- Все правки точечные: только импорт + два новых пропса (placeholder="blur" и blurDataURL), существующие props (src, alt, fill, sizes, className, priority, key) сохранены.
+   347→- `bun run lint` — 0 ошибок.
+   348→
+   349→Stage Summary:
+   350→- Добавлен lazy-blur для всех next/image в каталожных/контентных компонентах питомника (17 изображений в 11 файлах). Изображения теперь плавно появляются из тёплого тонированного blur (muted/secondary) вместо белой вспышки — улучшает perceived performance и сохраняет фирменный визуал.
+   351→- Hero.tsx не трогал (уже обработан в предыдущем раунде).
+   352→- Импорт везде через `@/lib/blur` (алиас работает и для `src/components/cattery/`, и для `src/app/blog/[slug]/`).
+   353→- Lint чист, минимальная площадь изменений, поведение сохранено.
+   354→
