@@ -35,6 +35,7 @@ import {
 } from "lucide-react";
 import { AdminKittens } from "@/components/cattery/admin-kittens";
 import { AdminMessages } from "@/components/cattery/admin-messages";
+import { AdminVisits } from "@/components/cattery/admin-visits";
 
 interface Booking {
   id: string;
@@ -92,7 +93,7 @@ export default function AdminPage() {
   const [selected, setSelected] = useState<Booking | null>(null);
   const [updating, setUpdating] = useState<string | null>(null);
   const [loggingOut, setLoggingOut] = useState(false);
-  const [activeView, setActiveView] = useState<"bookings" | "kittens" | "messages">("bookings");
+  const [activeView, setActiveView] = useState<"bookings" | "kittens" | "messages" | "visits">("bookings");
   const router = useRouter();
 
   const handleLogout = async () => {
@@ -206,11 +207,15 @@ export default function AdminPage() {
       <main className="container mx-auto max-w-6xl px-4 sm:px-6 py-8">
         {/* View switcher */}
         <div className="mb-6">
-          <Tabs value={activeView} onValueChange={(v) => setActiveView(v as "bookings" | "kittens" | "messages")}>
+          <Tabs value={activeView} onValueChange={(v) => setActiveView(v as "bookings" | "kittens" | "messages" | "visits")}>
             <TabsList className="bg-background border border-border h-auto p-1.5">
               <TabsTrigger value="bookings" className="gap-1.5">
                 <ClipboardList className="h-3.5 w-3.5" />
                 Заявки
+              </TabsTrigger>
+              <TabsTrigger value="visits" className="gap-1.5 data-[state=active]:bg-accent data-[state=active]:text-accent-foreground">
+                <CalendarClock className="h-3.5 w-3.5" />
+                Визиты
               </TabsTrigger>
               <TabsTrigger value="kittens" className="gap-1.5 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
                 <PawPrint className="h-3.5 w-3.5" />
@@ -228,6 +233,8 @@ export default function AdminPage() {
           <AdminKittens />
         ) : activeView === "messages" ? (
           <AdminMessages />
+        ) : activeView === "visits" ? (
+          <AdminVisits />
         ) : (
           <>
         {/* Stats grid */}

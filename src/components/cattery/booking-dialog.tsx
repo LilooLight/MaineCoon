@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   Dialog,
   DialogContent,
@@ -20,6 +20,7 @@ import { toast } from "sonner";
 export function BookingDialog() {
   const { isOpen, mode, kittenName, close } = useBooking();
   const [submitting, setSubmitting] = useState(false);
+  const formStartTime = useRef(Date.now());
   const [success, setSuccess] = useState(false);
   const [form, setForm] = useState({
     name: "",
@@ -32,6 +33,7 @@ export function BookingDialog() {
     if (isOpen) {
       setSuccess(false);
       setForm({ name: "", email: "", phone: "", message: "" });
+      formStartTime.current = Date.now();
     }
   }, [isOpen]);
 
@@ -39,14 +41,27 @@ export function BookingDialog() {
     e.preventDefault();
     setSubmitting(true);
     try {
-      const res = await fetch("/api/bookings", {
+      // Use /api/reserve for kitten booking, /api/bookings for waiting list
+      const endpoint = mode === "booking" && kittenName ? "/api/reserve" : "/api/bookings";
+      const payload = mode === "booking" && kittenName
+        ? {
+            kittenId: kittenId || undefined,
+            name: form.name,
+            contact: `${form.phone}${form.email ? " / " + form.email : ""}`,
+            message: form.message || undefined,
+            company: "", // honeypot
+            elapsedMs: Date.now() - formStartTime.current,
+          }
+        : {
+            ...form,
+            kittenName,
+            type: "waiting-list",
+          };
+
+      const res = await fetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ...form,
-          kittenName,
-          type: mode === "waiting-list" ? "waiting-list" : "booking",
-        }),
+        body: JSON.stringify(payload),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Ошибка отправки");

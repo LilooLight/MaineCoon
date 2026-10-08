@@ -118,15 +118,51 @@ model Booking {
   updatedAt   DateTime @updatedAt
 }
 
-// ContactMessage — visit planning + general inquiries
+// VisitBooking — visit requests from the contacts form
+model VisitBooking {
+  id        String   @id @default(cuid())
+  name      String
+  contact   String   // phone or Telegram nick
+  visitDate String?  // "YYYY-MM-DD" string, NOT DateTime
+  message   String?
+  status    String   @default("new") // new | confirmed | closed
+  createdAt DateTime @default(now())
+}
+
+// Reservation — kitten booking requests
+model Reservation {
+  id        String   @id @default(cuid())
+  kittenId  String
+  name      String
+  contact   String
+  message   String?
+  status    String   @default("new") // new | approved | rejected
+  createdAt DateTime @default(now())
+}
+
+// UnavailableDay — blocked dates (admin or Google Calendar iCal import)
+model UnavailableDay {
+  id     String @id @default(cuid())
+  date   String @unique // "YYYY-MM-DD"
+  note   String?
+  source String @default("admin") // admin | gcal
+}
+
+// ContactMessage — legacy, kept for backward compat
 model ContactMessage {
   id             String   @id @default(cuid())
   name           String
-  preferredDates String   @default("") // JSON array of ISO date strings
-  contactChannel String   @default("phone") // phone | email | telegram | vk
-  contactValue   String   // phone number / email / @nickname / VK profile URL
-  comment        String   @default("") // optional, max 500 chars
-  status         String   @default("new") // new | read | replied | closed
+  preferredDates String   @default("")
+  contactChannel String   @default("phone")
+  contactValue   String
+  comment        String   @default("")
+  status         String   @default("new")
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
+}
+
+// Setting — key-value store for iCal URL etc.
+model Setting {
+  key   String @id
+  value String
 }

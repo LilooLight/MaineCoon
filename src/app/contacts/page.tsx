@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -32,6 +32,7 @@ import {
   Youtube,
   Calendar as CalendarIcon,
   X,
+  Lock,
 } from "lucide-react";
 import { Footer } from "@/components/cattery/footer";
 import { BackToTop } from "@/components/cattery/back-to-top";
@@ -80,31 +81,34 @@ export default function ContactsPage() {
     name: "",
     contactChannel: "phone",
     contactValue: "",
+    visitDate: "",
     comment: "",
+    company: "", // honeypot
   });
-  const [selectedDates, setSelectedDates] = useState<string[]>([]);
+  const [busyDates, setBusyDates] = useState<Set<string>>(new Set());
+  const [datesLoading, setDatesLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
+  const formStartTime = useRef(Date.now());
 
-  // Date picker helpers
+  // Load busy dates on mount
+  useEffect(() => {
+    fetch("/api/availability")
+      .then((r) => r.json())
+      .then((data) => {
+        setBusyDates(new Set(data.dates || []));
+        setDatesLoading(false);
+      })
+      .catch(() => setDatesLoading(false));
+  }, []);
+
+  // Generate next 30 days
   const today = new Date();
-  const tomorrow = new Date(today);
-  tomorrow.setDate(tomorrow.getDate() + 1);
-
-  // Generate next 30 days for quick selection
   const upcomingDays = Array.from({ length: 30 }, (_, i) => {
     const d = new Date(today);
     d.setDate(d.getDate() + i + 1);
     return d;
   });
-
-  const toggleDate = (dateStr: string) => {
-    setSelectedDates((prev) =>
-      prev.includes(dateStr)
-        ? prev.filter((d) => d !== dateStr)
-        : [...prev, dateStr]
-    );
-  };
 
   const formatDate = (d: Date) => d.toISOString().split("T")[0];
   const formatDisplayDate = (d: Date) =>
@@ -114,7 +118,6 @@ export default function ContactsPage() {
 
   const handleContactValueChange = (value: string) => {
     if (form.contactChannel === "telegram") {
-      // Auto-prepend @ if not present
       let val = value;
       if (val && !val.startsWith("@") && val !== "") {
         val = "@" + val.replace(/^@+/g, "");
@@ -132,10 +135,6 @@ export default function ContactsPage() {
       toast.error("Укажите ваше имя");
       return;
     }
-    if (selectedDates.length === 0) {
-      toast.error("Выберите хотя бы одну удобную дату");
-      return;
-    }
     if (!form.contactValue.trim()) {
       toast.error("Укажите контакт для связи");
       return;
@@ -143,26 +142,44 @@ export default function ContactsPage() {
 
     setSubmitting(true);
     try {
-      const res = await fetch("/api/contact", {
+      const elapsedMs = Date.now() - formStartTime.current;
+      const res = await fetch("/api/visits", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           name: form.name,
-          preferredDates: selectedDates,
-          contactChannel: form.contactChannel,
-          contactValue: form.contactValue,
-          comment: form.comment,
+          contact: form.contactValue,
+          visitDate: form.visitDate || undefined,
+          message: form.comment || undefined,
+          company: form.company, // honeypot
+          elapsedMs,
         }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Ошибка отправки");
+      if (!res.ok) {
+        if (data.error === "date_unavailable") {
+          toast.error("Эта дата уже занята", {
+            description: "Выберите другую дату из списка.",
+          });
+        } else {
+          throw new Error(data.error || "Ошибка отправки");
+        }
+        return;
+      }
 
       setSuccess(true);
       toast.success("Заявка отправлена!", {
         description: "Мы свяжемся с вами для подтверждения даты визита.",
       });
-      setForm({ name: "", contactChannel: "phone", contactValue: "", comment: "" });
-      setSelectedDates([]);
+      setForm({
+        name: "",
+        contactChannel: "phone",
+        contactValue: "",
+        visitDate: "",
+        comment: "",
+        company: "",
+      });
+      formStartTime.current = Date.now();
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Ошибка отправки");
     } finally {
@@ -172,7 +189,6 @@ export default function ContactsPage() {
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
-      {/* Mini header */}
       <header className="sticky top-0 z-40 bg-background/85 backdrop-blur-md border-b border-border">
         <div className="container mx-auto max-w-5xl px-4 sm:px-6 h-16 flex items-center justify-between">
           <Link
@@ -195,7 +211,6 @@ export default function ContactsPage() {
 
       <main className="flex-1 py-10 sm:py-14">
         <div className="container max-w-5xl px-4 sm:px-6">
-          {/* Header */}
           <div className="text-center max-w-2xl mx-auto mb-10">
             <Badge variant="outline" className="mb-4 border-accent/30 bg-accent/5 text-accent">
               <CalendarCheck className="h-3.5 w-3.5 mr-1.5" />
@@ -205,7 +220,7 @@ export default function ContactsPage() {
               Приезжайте познакомиться
             </h1>
             <p className="text-lg text-muted-foreground leading-relaxed">
-              Заполните форму — мы свяжемся с вами и согласуем удобное время.
+              Заполните форму — мы свяжемся с вами и согласуем время.
               Только по записи, чтобы не стрессовать животных.
             </p>
           </div>
@@ -268,11 +283,21 @@ export default function ContactsPage() {
                       Форма заявки
                     </h2>
 
+                    {/* Honeypot — hidden from humans */}
+                    <input
+                      type="text"
+                      name="company"
+                      value={form.company}
+                      onChange={(e) => setForm({ ...form, company: e.target.value })}
+                      style={{ position: "absolute", left: "-9999px", width: "1px", height: "1px", opacity: 0 }}
+                      tabIndex={-1}
+                      autoComplete="off"
+                      aria-hidden
+                    />
+
                     {/* 1. Name */}
                     <div className="grid gap-1.5">
-                      <Label htmlFor="v-name">
-                        Ваше имя
-                      </Label>
+                      <Label htmlFor="v-name">Ваше имя</Label>
                       <Input
                         id="v-name"
                         value={form.name}
@@ -282,48 +307,57 @@ export default function ContactsPage() {
                       />
                     </div>
 
-                    {/* 2. Preferred dates — multi-select */}
+                    {/* 2. Visit date — single select with busy dates blocked */}
                     <div className="grid gap-1.5">
                       <Label className="flex items-center gap-1.5">
                         <CalendarIcon className="h-4 w-4 text-primary" />
-                        Удобные даты
+                        Удобная дата
                         <span className="text-[11px] text-muted-foreground font-normal">
-                          (выберите одну или несколько)
+                          (занятые даты скрыты)
                         </span>
                       </Label>
-                      <div className="flex flex-wrap gap-1.5 max-h-40 overflow-y-auto custom-scroll p-1 rounded-lg bg-muted/30">
-                        {upcomingDays.map((d) => {
-                          const dateStr = formatDate(d);
-                          const selected = selectedDates.includes(dateStr);
-                          return (
-                            <button
-                              key={dateStr}
-                              type="button"
-                              onClick={() => toggleDate(dateStr)}
-                              disabled={submitting}
-                              className={`px-2.5 py-1.5 rounded-lg text-xs font-medium border transition-all ${
-                                selected
-                                  ? "bg-primary text-primary-foreground border-primary shadow-sm"
-                                  : "bg-background text-muted-foreground border-border hover:border-primary/40"
-                              }`}
-                            >
-                              {formatDisplayDate(d)}
-                            </button>
-                          );
-                        })}
-                      </div>
-                      {selectedDates.length > 0 && (
+                      {datesLoading ? (
+                        <div className="flex items-center gap-2 text-sm text-muted-foreground p-2">
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                          Загрузка доступных дат...
+                        </div>
+                      ) : (
+                        <div className="flex flex-wrap gap-1.5 max-h-40 overflow-y-auto custom-scroll p-1 rounded-lg bg-muted/30">
+                          {upcomingDays.map((d) => {
+                            const dateStr = formatDate(d);
+                            const isBusy = busyDates.has(dateStr);
+                            const isSelected = form.visitDate === dateStr;
+                            if (isBusy) return null; // hide busy dates entirely
+                            return (
+                              <button
+                                key={dateStr}
+                                type="button"
+                                onClick={() => setForm({ ...form, visitDate: isSelected ? "" : dateStr })}
+                                disabled={submitting}
+                                className={`px-2.5 py-1.5 rounded-lg text-xs font-medium border transition-all ${
+                                  isSelected
+                                    ? "bg-primary text-primary-foreground border-primary shadow-sm"
+                                    : "bg-background text-muted-foreground border-border hover:border-primary/40"
+                                }`}
+                              >
+                                {formatDisplayDate(d)}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      )}
+                      {form.visitDate && (
                         <div className="flex items-center gap-2 mt-1">
                           <span className="text-xs text-primary font-medium">
-                            Выбрано: {selectedDates.length}
+                            Выбрано: {formatDisplayDate(new Date(form.visitDate))}
                           </span>
                           <button
                             type="button"
-                            onClick={() => setSelectedDates([])}
+                            onClick={() => setForm({ ...form, visitDate: "" })}
                             className="text-xs text-muted-foreground hover:text-destructive inline-flex items-center gap-0.5"
                           >
                             <X className="h-3 w-3" />
-                            Очистить
+                            Сбросить
                           </button>
                         </div>
                       )}
@@ -357,9 +391,7 @@ export default function ContactsPage() {
                         </Select>
                       </div>
                       <div className="grid gap-1.5">
-                        <Label>
-                          {currentChannel?.label || "Контакт"}
-                        </Label>
+                        <Label>{currentChannel?.label || "Контакт"}</Label>
                         <Input
                           value={form.contactValue}
                           onChange={(e) => handleContactValueChange(e.target.value)}
@@ -405,9 +437,9 @@ export default function ContactsPage() {
                         </>
                       )}
                     </Button>
-                    <p className="text-[11px] text-muted-foreground text-center leading-relaxed">
-                      Нажимая кнопку, вы соглашаетесь на обработку контактов
-                      заводчиком. Никакого спама.
+                    <p className="text-[11px] text-muted-foreground text-center leading-relaxed flex items-center justify-center gap-1">
+                      <Lock className="h-3 w-3" />
+                      Защита от спама. Никакого спама.
                     </p>
                   </form>
                 )}
@@ -439,7 +471,7 @@ export default function ContactsPage() {
                     </li>
                     <li className="flex items-start gap-2">
                       <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-primary" />
-                      Если не готовы бронировать сразу — можно приехать ещё раз
+                      Занятые даты автоматически скрываются из календаря
                     </li>
                   </ul>
                 </CardContent>
@@ -454,8 +486,7 @@ export default function ContactsPage() {
                     </h3>
                   </div>
                   <p className="text-sm text-muted-foreground leading-relaxed mb-3">
-                    Публикуем фото и видео котят, истории выпускников и
-                    советы по уходу.
+                    Публикуем фото и видео котят, истории выпускников и советы по уходу.
                   </p>
                   <div className="flex flex-wrap gap-2">
                     {[
@@ -499,8 +530,7 @@ export default function ContactsPage() {
                     <Link href="/#blog" className="text-primary hover:underline">
                       блоге
                     </Link>
-                    . Там — про документы, социализацию и уход. Если нет —
-                    пишите, ответим лично.
+                    . Там — про документы, социализацию и уход.
                   </p>
                 </CardContent>
               </Card>
