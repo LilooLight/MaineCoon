@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { PawPrint, Phone, Mail, MapPin, MessageCircle, Send, Heart, CalendarCheck, Instagram, Youtube } from "lucide-react";
-import { useBooking } from "./booking-context";
 
 const NAV_SECTIONS = [
   {
@@ -26,7 +25,6 @@ const NAV_SECTIONS = [
 ];
 
 export function Footer() {
-  const { openWaitingList } = useBooking();
   return (
     <footer className="bg-foreground text-background mt-auto">
       <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
@@ -107,13 +105,13 @@ export function Footer() {
                 </a>
               </div>
               {/* Plan a visit button */}
-              <button
-                onClick={openWaitingList}
+              <Link
+                href="/contacts"
                 className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-accent text-accent-foreground text-sm font-semibold hover:bg-accent/90 transition-colors w-fit"
               >
                 <CalendarCheck className="h-4 w-4" />
                 Запланировать визит
-              </button>
+              </Link>
             </div>
           </div>
 
