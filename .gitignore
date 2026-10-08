@@ -51,8 +51,8 @@ prompt
 
 server.log
 
-# Database (SQLite) — не публикуем локальную БД
-db/*.db
+# Database (SQLite) — публикуем с данными для чтения
+# db/*.db
 db/*.db-journal
 
 # Uploaded files (временные загрузки пользователей)

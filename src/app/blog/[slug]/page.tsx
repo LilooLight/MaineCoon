@@ -22,18 +22,12 @@ interface PageProps {
   params: Promise<{ slug: string }>;
 }
 
-// Pre-render known slugs at build time for SSG
-export async function generateStaticParams() {
-  const posts = await db.blogPost.findMany({
-    where: { published: true },
-    select: { slug: true },
-  });
-  return posts.map((p) => ({ slug: p.slug }));
-}
+// Force dynamic rendering — no SSG (avoids DB query during build on Vercel)
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
-  const post = await db.blogPost.findFirst({ where: { slug, published: true } });
+  const post = await db.blogPost.findFirst({ where: { slug, published: true } }).catch(() => null);
   if (!post) {
     return { title: "Статья не найдена — Тихий Дом" };
   }
