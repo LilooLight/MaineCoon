@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { Heart, ShieldCheck, Home, Users, Sparkles, MessageCircle, ArrowRight } from "lucide-react";
+import { Heart, ShieldCheck, Home, Users, Sparkles, MessageCircle, ArrowRight, Stethoscope } from "lucide-react";
 import { BLUR_DATA_URLS } from "@/lib/blur";
 
 const DIFFERENTIATORS = [
@@ -13,6 +13,12 @@ const DIFFERENTIATORS = [
     title: "Документы и родословные",
     text: "Все производители имеют родословные WCF. Котёнок приезжает с метрикой, ветеринарным паспортом и договором. Документы показываем до брони.",
     accent: "primary" as const,
+  },
+  {
+    icon: Stethoscope,
+    title: "Клуб и фелинолог",
+    text: "Все котята прикреплены к монопородному клубу и находятся под наблюдением фелинолога. Мы следим за развитием, соответствием породе и помогаем с документами.",
+    accent: "accent" as const,
   },
   {
     icon: Sparkles,
@@ -24,7 +30,7 @@ const DIFFERENTIATORS = [
     icon: MessageCircle,
     title: "Поддержка на всю жизнь",
     text: "Личная связь с заводчиком, а не «менеджер 24/7». Отвечаем даже спустя год — потому что это наши выпускники.",
-    accent: "accent" as const,
+    accent: "primary" as const,
   },
   {
     icon: Home,

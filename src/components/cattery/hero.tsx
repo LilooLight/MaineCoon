@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Heart, FileCheck, Sparkles, ArrowDown, PawPrint } from "lucide-react";
+import { Heart, FileCheck, Sparkles, ArrowDown, PawPrint, Stethoscope } from "lucide-react";
 import type { CatteryStats } from "@/lib/types/cattery";
 import { BLUR_DATA_URLS } from "@/lib/blur";
 import { useBooking } from "./booking-context";
@@ -23,17 +23,29 @@ export function Hero() {
 
   return (
     <section id="top" className="relative overflow-hidden min-h-[90vh] flex items-center">
-      {/* Full-screen background image — Машук */}
-      <div className="absolute inset-0 -z-10">
+      {/* Full-screen background image — Машук (real photos) */}
+      <div className="absolute inset-0 z-0">
+        {/* Mobile: vertical photo (Mashuk 2) — кот смотрит вправо, текст слева */}
         <Image
-          src="/images/cattery/hero-mashuk.jpg"
+          src="/images/cattery/mashuk-2.webp"
           alt="Машук — угольно-чёрный мейн-кун, талисман питомника"
           fill
           priority
           sizes="100vw"
           placeholder="blur"
           blurDataURL={BLUR_DATA_URLS.muted}
-          className="object-cover"
+          className="object-cover sm:hidden"
+        />
+        {/* Desktop: horizontal photo (Mashuk 3) — фронтальный взгляд */}
+        <Image
+          src="/images/cattery/mashuk-3.webp"
+          alt="Машук — угольно-чёрный мейн-кун, талисман питомника"
+          fill
+          priority
+          sizes="100vw"
+          placeholder="blur"
+          blurDataURL={BLUR_DATA_URLS.muted}
+          className="object-cover hidden sm:block"
         />
         {/* Gradient overlay for text readability — dark on left, transparent on right */}
         <div className="absolute inset-0 bg-gradient-to-r from-background/95 via-background/70 to-transparent sm:from-background/90 sm:via-background/50 sm:to-transparent" />
@@ -41,7 +53,7 @@ export function Hero() {
         <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent sm:hidden" />
       </div>
 
-      <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-24 sm:pt-28 lg:pt-32 pb-16 lg:pb-24 relative">
+      <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-24 sm:pt-28 lg:pt-32 pb-16 lg:pb-24 relative z-10">
         <div className="max-w-2xl blur-fade flex flex-col gap-6">
           <Badge
             variant="outline"
@@ -68,6 +80,10 @@ export function Hero() {
             <div className="flex items-center gap-2 text-sm text-foreground/90 bg-background/60 backdrop-blur-sm px-3 py-1 rounded-full">
               <FileCheck className="h-4 w-4 text-primary" />
               Родословные и документы
+            </div>
+            <div className="flex items-center gap-2 text-sm text-foreground/90 bg-background/60 backdrop-blur-sm px-3 py-1 rounded-full">
+              <Stethoscope className="h-4 w-4 text-primary" />
+              Под наблюдением фелинолога
             </div>
             <div className="flex items-center gap-2 text-sm text-foreground/90 bg-background/60 backdrop-blur-sm px-3 py-1 rounded-full">
               <Heart className="h-4 w-4 text-accent" />

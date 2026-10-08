@@ -1,16 +1,16 @@
 "use client";
 
-import { Heart, ShieldCheck, Home, PawPrint, Star } from "lucide-react";
+import { Heart, ShieldCheck, Home, PawPrint, Star, Stethoscope } from "lucide-react";
 
 const ITEMS = [
   { icon: Heart, text: "Пожизненная поддержка заводчика" },
   { icon: ShieldCheck, text: "Родословные WCF · документы открыты" },
+  { icon: Stethoscope, text: "Котята под наблюдением фелинолога" },
   { icon: PawPrint, text: "2–3 помёта в год — не конвейер" },
   { icon: Home, text: "Социализация в домашних условиях" },
   { icon: Star, text: "20+ выпускников в любящих семьях" },
   { icon: Heart, text: "Каждый котёнок — событие" },
-  { icon: ShieldCheck, text: "Документы до брони, не после" },
-  { icon: PawPrint, text: "Фильтр по характеру — уникально" },
+  { icon: ShieldCheck, text: "Прикреплены к монопородному клубу" },
 ];
 
 export function TrustMarquee() {
