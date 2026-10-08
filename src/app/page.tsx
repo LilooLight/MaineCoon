@@ -14,7 +14,6 @@ import { BookingProcess } from "@/components/cattery/booking-process";
 import { LitterTimeline } from "@/components/cattery/litter-timeline";
 import { BreederIntro } from "@/components/cattery/breeder-intro";
 import { ExpectedCountdown } from "@/components/cattery/expected-countdown";
-import { VisitUs } from "@/components/cattery/visit-us";
 import { CareChecklist } from "@/components/cattery/care-checklist";
 import { Reviews } from "@/components/cattery/reviews";
 import { Blog } from "@/components/cattery/blog";
@@ -45,7 +44,6 @@ export default function Home() {
             <BookingProcess />
             <BreederIntro />
             <Reviews />
-            <VisitUs />
             <CareChecklist />
             <Blog />
             <FAQ />

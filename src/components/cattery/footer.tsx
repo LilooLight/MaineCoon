@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { PawPrint, Phone, Mail, MapPin, MessageCircle, Send, Heart } from "lucide-react";
+import { PawPrint, Phone, Mail, MapPin, MessageCircle, Send, Heart, CalendarCheck, Instagram, Youtube } from "lucide-react";
+import { useBooking } from "./booking-context";
 
 const NAV_SECTIONS = [
   {
@@ -25,6 +26,7 @@ const NAV_SECTIONS = [
 ];
 
 export function Footer() {
+  const { openWaitingList } = useBooking();
   return (
     <footer className="bg-foreground text-background mt-auto">
       <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
@@ -72,22 +74,46 @@ export function Footer() {
               </div>
             </div>
 
-            {/* Messengers */}
-            <div className="flex gap-2 mt-2">
-              <a
-                href="https://wa.me/74951234567"
-                aria-label="WhatsApp"
-                className="flex h-9 w-9 items-center justify-center rounded-lg bg-background/10 hover:bg-background/20 transition-colors"
+            {/* Social media + messengers */}
+            <div className="flex flex-col gap-3 mt-2">
+              <div className="flex gap-2">
+                <a
+                  href="https://wa.me/74951234567"
+                  aria-label="WhatsApp"
+                  className="flex h-9 w-9 items-center justify-center rounded-lg bg-background/10 hover:bg-background/20 transition-colors"
+                >
+                  <MessageCircle className="h-4 w-4" />
+                </a>
+                <a
+                  href="https://t.me/tiliydom"
+                  aria-label="Telegram"
+                  className="flex h-9 w-9 items-center justify-center rounded-lg bg-background/10 hover:bg-background/20 transition-colors"
+                >
+                  <Send className="h-4 w-4" />
+                </a>
+                <a
+                  href="https://instagram.com/tiliydom"
+                  aria-label="Instagram"
+                  className="flex h-9 w-9 items-center justify-center rounded-lg bg-background/10 hover:bg-background/20 transition-colors"
+                >
+                  <Instagram className="h-4 w-4" />
+                </a>
+                <a
+                  href="https://youtube.com/@tiliydom"
+                  aria-label="YouTube"
+                  className="flex h-9 w-9 items-center justify-center rounded-lg bg-background/10 hover:bg-background/20 transition-colors"
+                >
+                  <Youtube className="h-4 w-4" />
+                </a>
+              </div>
+              {/* Plan a visit button */}
+              <button
+                onClick={openWaitingList}
+                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-accent text-accent-foreground text-sm font-semibold hover:bg-accent/90 transition-colors w-fit"
               >
-                <MessageCircle className="h-4 w-4" />
-              </a>
-              <a
-                href="https://t.me/tiliydom"
-                aria-label="Telegram"
-                className="flex h-9 w-9 items-center justify-center rounded-lg bg-background/10 hover:bg-background/20 transition-colors"
-              >
-                <Send className="h-4 w-4" />
-              </a>
+                <CalendarCheck className="h-4 w-4" />
+                Запланировать визит
+              </button>
             </div>
           </div>
 

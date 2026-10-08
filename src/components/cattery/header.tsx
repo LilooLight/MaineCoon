@@ -16,11 +16,7 @@ const NAV_LINKS = [
   { href: "#producers", label: "Производители" },
   { href: "#kittens", label: "Котята" },
   { href: "#litters", label: "Помёты" },
-  { href: "#breeder", label: "Заводчик" },
   { href: "#reviews", label: "Выпускники" },
-  { href: "#visit", label: "Визит" },
-  { href: "#blog", label: "Блог" },
-  { href: "#faq", label: "Вопросы" },
 ];
 
 export function Header() {
@@ -99,13 +95,6 @@ export function Header() {
             >
               <Phone className="h-4 w-4" />
               Позвонить
-            </a>
-            <a
-              href="tel:+74951234567"
-              className="hidden xl:flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors px-2"
-            >
-              <Phone className="h-4 w-4" />
-              +7 495 123-45-67
             </a>
             {/* Favorites button */}
             <button
