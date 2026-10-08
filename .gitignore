@@ -50,5 +50,19 @@ test
 prompt
 
 server.log
-# Skills directory
+
+# Database (SQLite) — не публикуем локальную БД
+db/*.db
+db/*.db-journal
+
+# Uploaded files (временные загрузки пользователей)
+/upload/
+
+# Availability service logs
+availability-*.log
+
+# Skills directory (внутренние утилиты окружения)
 /skills/
+
+# Download (временные файлы)
+/download/
