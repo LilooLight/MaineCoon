@@ -11,14 +11,14 @@ export async function GET(req: NextRequest) {
     // cached the Prisma Client.
     if (status && status !== "all") {
       const rows = await db.$queryRaw<
-        { id: string; name: string; email: string; phone: string | null; subject: string; message: string; status: string; createdAt: string }[]
-      >`SELECT id, name, email, phone, subject, message, status, createdAt FROM ContactMessage WHERE status = ${status} ORDER BY createdAt DESC LIMIT 100`;
+        { id: string; name: string; preferredDates: string; contactChannel: string; contactValue: string; comment: string; status: string; createdAt: string }[]
+      >`SELECT id, name, preferredDates, contactChannel, contactValue, comment, status, createdAt FROM ContactMessage WHERE status = ${status} ORDER BY createdAt DESC LIMIT 100`;
       return NextResponse.json({ messages: rows });
     }
 
     const rows = await db.$queryRaw<
-      { id: string; name: string; email: string; phone: string | null; subject: string; message: string; status: string; createdAt: string }[]
-    >`SELECT id, name, email, phone, subject, message, status, createdAt FROM ContactMessage ORDER BY createdAt DESC LIMIT 100`;
+      { id: string; name: string; preferredDates: string; contactChannel: string; contactValue: string; comment: string; status: string; createdAt: string }[]
+    >`SELECT id, name, preferredDates, contactChannel, contactValue, comment, status, createdAt FROM ContactMessage ORDER BY createdAt DESC LIMIT 100`;
 
     // Stats
     const allRows = await db.$queryRaw<{ status: string }[]>`SELECT status FROM ContactMessage`;

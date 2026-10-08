@@ -26,15 +26,18 @@ import {
   Loader2,
   MessageSquare,
   Send,
+  Calendar as CalendarIcon,
+  Send as TelegramIcon,
+  MessageCircle,
 } from "lucide-react";
 
 interface AdminMessage {
   id: string;
   name: string;
-  email: string;
-  phone: string | null;
-  subject: string;
-  message: string;
+  preferredDates: string;
+  contactChannel: string;
+  contactValue: string;
+  comment: string;
   status: string;
   createdAt: string;
 }
@@ -57,6 +60,13 @@ const STATUS_META: Record<
   closed: { label: "Закрыто", color: "bg-muted text-muted-foreground border-border", icon: XCircle },
 };
 
+const CHANNEL_META: Record<string, { label: string; icon: typeof Phone; hrefPrefix: string }> = {
+  phone: { label: "Телефон", icon: Phone, hrefPrefix: "tel:" },
+  email: { label: "Email", icon: Mail, hrefPrefix: "mailto:" },
+  telegram: { label: "Telegram", icon: TelegramIcon, hrefPrefix: "https://t.me/" },
+  vk: { label: "ВКонтакте", icon: MessageCircle, hrefPrefix: "" },
+};
+
 function formatDate(iso: string): string {
   try {
     const d = new Date(iso);
@@ -68,6 +78,18 @@ function formatDate(iso: string): string {
     });
   } catch {
     return iso;
+  }
+}
+
+function formatDates(datesJson: string): string {
+  try {
+    const dates: string[] = JSON.parse(datesJson);
+    if (!Array.isArray(dates) || dates.length === 0) return "Даты не указаны";
+    return dates
+      .map((d) => new Date(d).toLocaleDateString("ru-RU", { day: "numeric", month: "short" }))
+      .join(", ");
+  } catch {
+    return "Даты не указаны";
   }
 }
 
@@ -139,6 +161,17 @@ export function AdminMessages() {
     }
   };
 
+  const getContactHref = (channel: string, value: string) => {
+    const meta = CHANNEL_META[channel];
+    if (!meta) return "#";
+    if (channel === "telegram") {
+      const nick = value.replace("@", "");
+      return `https://t.me/${nick}`;
+    }
+    if (channel === "vk") return value;
+    return `${meta.hrefPrefix}${value}`;
+  };
+
   return (
     <div>
       {/* Header */}
@@ -146,7 +179,7 @@ export function AdminMessages() {
         <div className="flex items-center gap-2">
           <MessageSquare className="h-5 w-5 text-primary" />
           <h2 className="font-serif text-xl font-semibold text-foreground">
-            Сообщения
+            Заявки на визит
           </h2>
           <Badge variant="outline" className="text-xs">
             {messages.length}
@@ -196,7 +229,7 @@ export function AdminMessages() {
         <Card className="border-dashed">
           <CardContent className="p-8 text-center">
             <Inbox className="h-10 w-10 text-muted-foreground/30 mx-auto mb-2" />
-            <p className="text-sm text-muted-foreground">Сообщений пока нет.</p>
+            <p className="text-sm text-muted-foreground">Заявок пока нет.</p>
           </CardContent>
         </Card>
       ) : (
@@ -204,13 +237,14 @@ export function AdminMessages() {
           {messages.map((msg) => {
             const statusMeta = STATUS_META[msg.status] ?? STATUS_META.new;
             const StatusIcon = statusMeta.icon;
+            const channelMeta = CHANNEL_META[msg.contactChannel] ?? CHANNEL_META.phone;
+            const ChannelIcon = channelMeta.icon;
             return (
               <Card
                 key={msg.id}
                 className="border-border bg-card hover:shadow-sm transition-shadow cursor-pointer"
                 onClick={() => {
                   setSelected(msg);
-                  // Auto-mark as read when opening
                   if (msg.status === "new") updateStatus(msg.id, "read");
                 }}
               >
@@ -218,7 +252,7 @@ export function AdminMessages() {
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex items-start gap-3 min-w-0 flex-1">
                       <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
-                        <MessageSquare className="h-4 w-4" />
+                        <CalendarIcon className="h-4 w-4" />
                       </div>
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-2 flex-wrap mb-1">
@@ -230,31 +264,20 @@ export function AdminMessages() {
                             {statusMeta.label}
                           </Badge>
                         </div>
-                        <p className="text-xs font-medium text-foreground/90 mb-1">
-                          {msg.subject}
+                        <p className="text-xs font-medium text-primary mb-1 flex items-center gap-1">
+                          <CalendarIcon className="h-3 w-3" />
+                          {formatDates(msg.preferredDates)}
                         </p>
-                        <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed">
-                          {msg.message}
-                        </p>
+                        {msg.comment && (
+                          <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed">
+                            {msg.comment}
+                          </p>
+                        )}
                         <div className="flex items-center gap-3 flex-wrap mt-1.5 text-[11px] text-muted-foreground">
-                          <a
-                            href={`mailto:${msg.email}`}
-                            onClick={(e) => e.stopPropagation()}
-                            className="inline-flex items-center gap-1 hover:text-foreground"
-                          >
-                            <Mail className="h-3 w-3" />
-                            {msg.email}
-                          </a>
-                          {msg.phone && (
-                            <a
-                              href={`tel:${msg.phone}`}
-                              onClick={(e) => e.stopPropagation()}
-                              className="inline-flex items-center gap-1 hover:text-foreground"
-                            >
-                              <Phone className="h-3 w-3" />
-                              {msg.phone}
-                            </a>
-                          )}
+                          <span className="inline-flex items-center gap-1">
+                            <ChannelIcon className="h-3 w-3" />
+                            {msg.contactValue}
+                          </span>
                           <span className="inline-flex items-center gap-1">
                             <Clock className="h-3 w-3" />
                             {formatDate(msg.createdAt)}
@@ -291,16 +314,16 @@ export function AdminMessages() {
       <Dialog open={!!selected} onOpenChange={(o) => !o && setSelected(null)}>
         <DialogContent className="max-w-lg bg-background">
           <DialogHeader className="sr-only">
-            <DialogTitle>Сообщение от {selected?.name}</DialogTitle>
+            <DialogTitle>Заявка от {selected?.name}</DialogTitle>
             <DialogDescription>
-              Детали сообщения и управление статусом.
+              Детали заявки на визит и управление статусом.
             </DialogDescription>
           </DialogHeader>
           {selected && (
             <div className="flex flex-col gap-4">
               <div className="flex items-start gap-3">
                 <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
-                  <MessageSquare className="h-5 w-5" />
+                  <CalendarIcon className="h-5 w-5" />
                 </div>
                 <div className="min-w-0 flex-1">
                   <h2 className="font-serif text-xl font-semibold text-foreground leading-tight">
@@ -312,56 +335,58 @@ export function AdminMessages() {
                 </div>
               </div>
 
+              {/* Preferred dates */}
               <div className="p-3 rounded-lg bg-primary/5 border border-primary/20">
-                <p className="text-[10px] text-primary uppercase tracking-wide mb-1">
-                  Тема
+                <p className="text-[10px] text-primary uppercase tracking-wide mb-1 flex items-center gap-1">
+                  <CalendarIcon className="h-3 w-3" />
+                  Удобные даты
                 </p>
                 <p className="text-sm font-semibold text-foreground">
-                  {selected.subject}
+                  {formatDates(selected.preferredDates)}
                 </p>
               </div>
 
+              {/* Contact */}
               <div className="p-3 rounded-lg bg-muted/50">
                 <p className="text-[10px] text-muted-foreground uppercase tracking-wide mb-1">
-                  Сообщение
+                  Канал связи
                 </p>
-                <p className="text-sm text-foreground/90 leading-relaxed whitespace-pre-line">
-                  {selected.message}
-                </p>
-              </div>
-
-              <div className="grid sm:grid-cols-2 gap-2">
                 <a
-                  href={`mailto:${selected.email}`}
-                  className="flex items-center gap-2 p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors"
+                  href={getContactHref(selected.contactChannel, selected.contactValue)}
+                  target="_blank"
+                  rel="noopener"
+                  className="text-sm font-medium text-primary hover:underline inline-flex items-center gap-1.5"
                 >
-                  <Mail className="h-4 w-4 text-primary shrink-0" />
-                  <div className="min-w-0">
-                    <p className="text-[10px] text-muted-foreground uppercase">Email</p>
-                    <p className="text-sm font-medium text-foreground truncate">{selected.email}</p>
-                  </div>
+                  {(() => {
+                    const meta = CHANNEL_META[selected.contactChannel];
+                    const Icon = meta?.icon ?? Phone;
+                    return <><Icon className="h-4 w-4" />{selected.contactValue}</>;
+                  })()}
                 </a>
-                {selected.phone && (
-                  <a
-                    href={`tel:${selected.phone}`}
-                    className="flex items-center gap-2 p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors"
-                  >
-                    <Phone className="h-4 w-4 text-primary shrink-0" />
-                    <div className="min-w-0">
-                      <p className="text-[10px] text-muted-foreground uppercase">Телефон</p>
-                      <p className="text-sm font-medium text-foreground truncate">{selected.phone}</p>
-                    </div>
-                  </a>
-                )}
               </div>
 
+              {/* Comment */}
+              {selected.comment && (
+                <div className="p-3 rounded-lg bg-muted/50">
+                  <p className="text-[10px] text-muted-foreground uppercase tracking-wide mb-1">
+                    Комментарий
+                  </p>
+                  <p className="text-sm text-foreground/90 leading-relaxed whitespace-pre-line">
+                    {selected.comment}
+                  </p>
+                </div>
+              )}
+
+              {/* Action buttons */}
               <div className="flex items-center gap-2 pt-2">
                 <a
-                  href={`mailto:${selected.email}?subject=Re: ${encodeURIComponent(selected.subject)}`}
+                  href={getContactHref(selected.contactChannel, selected.contactValue)}
+                  target="_blank"
+                  rel="noopener"
                   className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-accent text-accent-foreground hover:bg-accent/90 text-sm font-medium transition-colors"
                 >
                   <Send className="h-4 w-4" />
-                  Ответить
+                  Связаться
                 </a>
                 <Button
                   onClick={() => updateStatus(selected.id, "replied")}

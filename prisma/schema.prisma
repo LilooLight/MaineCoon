@@ -118,15 +118,15 @@ model Booking {
   updatedAt   DateTime @updatedAt
 }
 
-// ContactMessage — general inquiries from the contacts page
+// ContactMessage — visit planning + general inquiries
 model ContactMessage {
-  id        String   @id @default(cuid())
-  name      String
-  email     String
-  phone     String?
-  subject   String
-  message   String
-  status    String   @default("new") // new | read | replied | closed
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id             String   @id @default(cuid())
+  name           String
+  preferredDates String   @default("") // JSON array of ISO date strings
+  contactChannel String   @default("phone") // phone | email | telegram | vk
+  contactValue   String   // phone number / email / @nickname / VK profile URL
+  comment        String   @default("") // optional, max 500 chars
+  status         String   @default("new") // new | read | replied | closed
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 }
